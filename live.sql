@@ -1,7 +1,7 @@
 /*
 Navicat SQLite Data Transfer
 
-Source Server         : Prueba
+Source Server         : nueva prueba
 Source Server Version : 30808
 Source Host           : :0
 
@@ -9,7 +9,7 @@ Target Server Type    : SQLite
 Target Server Version : 30808
 File Encoding         : 65001
 
-Date: 2016-10-04 16:06:37
+Date: 2016-10-18 19:03:06
 */
 
 PRAGMA foreign_keys = OFF;
@@ -68,7 +68,8 @@ CREATE TABLE "players" (
 "long"  TEXT(255),
 "timestamp"  INTEGER,
 "time"  INTEGER,
-"kilobytes"  INTEGER
+"kilobytes"  INTEGER,
+"total_time"  INTEGER
 );
 
 -- ----------------------------
