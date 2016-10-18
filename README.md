@@ -1,1 +1,1 @@
-# hlserver2
+# hlserver
