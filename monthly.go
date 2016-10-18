@@ -92,7 +92,9 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 			}
 			menu3 += "<option label='" + stream + "' value='" + stream + "'>" + stream + "</option>"
 		}
+		query3.Close()
 	}
+	query2.Close()
 	// Se añaden los dia del mes al grafico
 	for i := 1; i <= daysIn(mes, anio); i++ {
 		fechaAud = append(fechaAud, i)
@@ -120,6 +122,7 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 		arrPico[toInt(day[1])] = pico
 		horaPico[toInt(day[1])] = toInt(hour[0])
 	}
+	query.Close()
 	g1 := grafDays(arrAud, len(fechaAud))
 	g2 := grafDays(arrMin, len(fechaAud))
 	g3 := grafDaysFloat(arrAVG, len(fechaAud))
@@ -195,7 +198,9 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 					}
 					menu3 += "<option label='" + stream + "' value='" + stream + "'>" + stream + "</option>"
 				}
+				query3.Close()
 			}
+			query2.Close()
 			dbmon_mu.RLock()
 			query, err := db0.Query("SELECT sum(audiencia), sum(minutos), avg(minutos), sum(megabytes), max(pico), horapico, fecha FROM resumen WHERE username = ? GROUP BY fecha", username)
 			dbmon_mu.RUnlock()
@@ -219,6 +224,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				arrPico[toInt(day[1])] = pico
 				horaPico[toInt(day[1])] = toInt(hour[0])
 			}
+			query.Close()
 			//Se seneran los gŕaficos
 			g1 := grafDays(arrAud, len(fechaAud))
 			g2 := grafDays(arrMin, len(fechaAud))
@@ -261,6 +267,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 					menu3 += "<option label='" + stream + "' value='" + stream + "'>" + stream + "</option>"
 				}
 			}
+			query2.Close()
 			dbmon_mu.RLock()
 			query, err := db0.Query("SELECT sum(audiencia), sum(minutos), avg(minutos), sum(megabytes), max(pico), horapico, fecha FROM resumen WHERE username = ? AND streamname = ? GROUP BY fecha", username, r.FormValue("stream"))
 			dbmon_mu.RUnlock()
@@ -284,6 +291,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				arrPico[toInt(day[1])] = pico
 				horaPico[toInt(day[1])] = toInt(hour[0])
 			}
+			query.Close()
 			//Se seneran los gŕaficos
 			g1 := grafDays(arrAud, len(fechaAud))
 			g2 := grafDays(arrMin, len(fechaAud))
@@ -325,6 +333,7 @@ func totalMonths(w http.ResponseWriter, r *http.Request) {
 			Warning.Println(err)
 		}
 	}
+	query.Close()
 	table := fmt.Sprintf("<tr><th>Total de horas consumidas: </th><td>&nbsp;</td><td>%d</td></tr><tr><th>Total de GB consumidos: </th><td>&nbsp;</td><td>%d</td></tr>", minutos, megas)
 	fmt.Fprintf(w, "%s", table)
 }
@@ -357,6 +366,7 @@ func totalMonthsChange(w http.ResponseWriter, r *http.Request) {
 				Warning.Println(err)
 			}
 		}
+		query.Close()
 		table := fmt.Sprintf("<tr><th>Total de horas consumidas: </th><td>&nbsp;</td><td>%d</td></tr><tr><th>Total de GB consumidos: </th><td>&nbsp;</td><td>%d</td></tr>", minutos, megas)
 		fmt.Fprintf(w, "%s", table)
 	}

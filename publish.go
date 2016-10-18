@@ -30,6 +30,7 @@ func publish(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Internal Server Error", 500)
 		}
 	}
+	query.Close()
 }
 
 func onplay(w http.ResponseWriter, r *http.Request) {

@@ -269,7 +269,9 @@ func mantenimiento() {
 							Error.Println(err1)
 						}
 					}
+					query2.Close()
 				}
+				query.Close()
 			}
 		}
 		// Obtenemos los datos de los players retransmitiendo
@@ -283,7 +285,6 @@ func mantenimiento() {
 		if err != nil {
 			Error.Println(err)
 		}
-		defer db3.Close()
 		for query.Next() {
 			var time_por_stream int64
 			var u, s, o, i string
@@ -296,13 +297,13 @@ func mantenimiento() {
 			var num_filas, total_time, total_kb int
 			// Seleccionar datos de players
 			db_mu.RLock()
-			query, err := db.Query("SELECT count(*), username, streamname, os,  isocode, sum(time), sum(kilobytes) FROM players WHERE username=? AND streamname=? AND os=? AND isocode=? GROUP BY username, streamname, os, isocode", &u, &s, &o, &i)
+			query2, err := db.Query("SELECT count(*), username, streamname, os,  isocode, sum(time), sum(kilobytes) FROM players WHERE username=? AND streamname=? AND os=? AND isocode=? GROUP BY username, streamname, os, isocode", &u, &s, &o, &i)
 			db_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
 			}
-			for query.Next() {
-				err = query.Scan(&num_filas, &user, &stream, &so, &isocode, &total_time, &total_kb)
+			for query2.Next() {
+				err = query2.Scan(&num_filas, &user, &stream, &so, &isocode, &total_time, &total_kb)
 				if err != nil {
 					Error.Println(err)
 				}
@@ -315,7 +316,10 @@ func mantenimiento() {
 					Error.Println(err1)
 				}
 			}
+			query2.Close()
 		}
+		query.Close()
+		db3.Close()
 		fecha_antigua = fecha_actual
 		mes_antiguo = mes_actual
 		time.Sleep(1 * time.Minute)

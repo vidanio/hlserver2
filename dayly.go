@@ -83,6 +83,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 		arrSo = append(arrSo, so)
 		arrSess = append(arrSess, count)
 	}
+	query.Close()
 	dbday_mu.RLock()
 	query2, err := db_now.Query("SELECT sum(time), isocode FROM resumen WHERE username = ? AND time IN (SELECT time FROM resumen GROUP BY username, streamname, isocode, os) GROUP BY isocode", username)
 	dbday_mu.RUnlock()
@@ -99,6 +100,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 		timePais = append(timePais, time)
 		arrIso = append(arrIso, isocode)
 	}
+	query2.Close()
 	dbday_mu.RLock()
 	query3, err := db_now.Query("SELECT sum(count), isocode FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, streamname, isocode , os HAVING count = max(count))  GROUP BY isocode ", username)
 	dbday_mu.RUnlock()
@@ -115,6 +117,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 		sesionPais = append(sesionPais, count)
 		paisSes = append(paisSes, isocode)
 	}
+	query3.Close()
 	dbday_mu.RLock()
 	query4, err := db_now.Query("SELECT sum(count), hour FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, streamname, isocode, hour, os HAVING count = max(count))  GROUP BY hour ORDER BY hour ASC", username)
 	dbday_mu.RUnlock()
@@ -130,6 +133,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 		sesHour = onlyHours()
 		horaSes[hora] = count
 	}
+	query4.Close()
 	// Aquí se crean los JSON
 	grafico0, _ := json.Marshal(Grafico{"pie", arrTime, arrSo, colores2})        // Aquí se crea el JSON para el grafico de segundos consumidos por sistema operativo
 	grafico1, _ := json.Marshal(Grafico{"pie", arrSess, arrSo, colores2})        // Aquí se crea el JSON para el grafico de sesiones por sistema operativo
@@ -202,6 +206,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 				arrSo = append(arrSo, so)
 				arrSess = append(arrSess, count)
 			}
+			query.Close()
 			dbday_mu.RLock()
 			query2, err := db_fecha.Query("SELECT sum(time), isocode FROM resumen WHERE username = ? AND time IN (SELECT time FROM resumen GROUP BY username, streamname, isocode, os) GROUP BY isocode", username)
 			dbday_mu.RUnlock()
@@ -218,6 +223,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 				timePais = append(timePais, time)
 				arrIso = append(arrIso, isocode)
 			}
+			query2.Close()
 			dbday_mu.RLock()
 			query3, err := db_fecha.Query("SELECT sum(count), isocode FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, streamname, isocode , os HAVING count = max(count))  GROUP BY isocode", username)
 			dbday_mu.RUnlock()
@@ -234,6 +240,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 				sesionPais = append(sesionPais, count)
 				paisSes = append(paisSes, isocode)
 			}
+			query3.Close()
 			dbday_mu.RLock()
 			query4, err := db_fecha.Query("SELECT sum(count), hour FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, streamname, isocode, hour, os HAVING count = max(count))  GROUP BY hour ORDER BY hour ASC", username)
 			dbday_mu.RUnlock()
@@ -250,6 +257,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 				sesHour = onlyHours()
 				horaSes[hora] = count
 			}
+			query4.Close()
 			// Aquí se crean los JSON
 			grafico0, _ := json.Marshal(Grafico{"pie", arrTime, arrSo, colores2})        // Aquí se crea el JSON para el grafico de segundos consumidos por sistema operativo
 			grafico1, _ := json.Marshal(Grafico{"pie", arrSess, arrSo, colores2})        // Aquí se crea el JSON para el grafico de sesiones por sistema operativo
@@ -258,6 +266,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 			grafico4, _ := json.Marshal(Grafico2{"line", sesionHours(horaSes), sesHour}) // Aquí se crea el JSON para el grafico de sesiones por franja horaria
 			fmt.Fprintf(w, "%s;%s;%s;%s;%s;%s", fechaESP, string(grafico0), string(grafico1), string(grafico2), string(grafico3), string(grafico4))
 		}
+		exist.Close()
 		db_fecha.Close()
 	}
 }

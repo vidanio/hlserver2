@@ -34,6 +34,7 @@ func encoderStatNow(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "<tr><td><a href=\"javascript:launchRemote('play.cgi?stream=%s')\"><img src='images/play.jpg' border='0' title='Play %s'/></a></td><td><img src=\"images/flags/%s.png\" title=\"%s\"></td><td>%s</td><td>%s</td><td>%s</td></tr>",
 			streamname, streamname, isocode, country, ip, streamname, time_connect)
 	}
+	query.Close()
 	fmt.Fprintf(w, "</table>")
 }
 
@@ -63,6 +64,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "<tr><td>%s <img class='pull-right' src=\"images/flags/%s.png\" title=\"%s\"></td><td>%s</td><td>%s</td></tr>",
 				country, isocode, country, ips, streamname)
 		}
+		query.Close()
 		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='6'><b>Total:</b> %d players conectados</td></tr></table>", contador)
 	} else {
 		db_mu.RLock()
@@ -85,6 +87,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "<tr><td>%s <img class='pull-right' src=\"images/flags/%s.png\" title=\"%s\"></td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>",
 				country, isocode, country, region, city, ipclient, streamname, os, time_connect)
 		}
+		query.Close()
 		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='8'><b>Total:</b> %d players conectados</td></tr></table>", contador)
 	}
 }

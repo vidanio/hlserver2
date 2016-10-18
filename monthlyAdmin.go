@@ -71,8 +71,10 @@ func putMonthlyAdmin(w http.ResponseWriter, r *http.Request) {
 				Warning.Println(err)
 			}
 		}
+		query.Close()
 		table += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%d</td><td>%d</td><td><button href='#' title='Pulsa para cambiar el estado' onclick='load(%d)'>%s</button></td></tr>", user, pass, minutos, megas, id, estado)
 	}
+	query2.Close()
 	fmt.Fprintf(w, "%s", table)
 }
 
@@ -120,8 +122,10 @@ func putMonthlyAdminChange(w http.ResponseWriter, r *http.Request) {
 					Warning.Println(err)
 				}
 			}
+			query.Close()
 			table += fmt.Sprintf("<tr><td>%s</td><td>%s</td><td>%d</td><td>%d</td><td><button href='#' title='Pulsa para cambiar el estado' onclick='load(%d)'>%s</button></td></tr>", user, pass, minutos, megas, id, estado)
 		}
+		query2.Close()
 		fmt.Fprintf(w, "%s", table)
 	}
 }
@@ -140,6 +144,7 @@ func changeStatus(w http.ResponseWriter, r *http.Request) {
 	for query2.Next() {
 		err = query2.Scan(&id, &user, &status)
 	}
+	query2.Close()
 	if status == 1 {
 		db_mu.Lock()
 		_, err1 := db.Exec("UPDATE admin SET status = 0 WHERE id= ?", id)
@@ -164,6 +169,7 @@ func changeStatus(w http.ResponseWriter, r *http.Request) {
 			http.Get(peticion)
 			time.Sleep(10 * time.Millisecond)
 		}
+		query3.Close()
 	} else {
 		db_mu.Lock()
 		_, err1 := db.Exec("UPDATE admin SET status = 1 WHERE id= ?", id)
@@ -204,6 +210,7 @@ func buscarClientes(w http.ResponseWriter, r *http.Request) {
 		selector = fmt.Sprintf("<option value='%d'>%s</option>", id, nombre)
 		fmt.Fprintf(w, "%s", selector)
 	}
+	query.Close()
 }
 
 // Función que borra un cliente de la tabla admin

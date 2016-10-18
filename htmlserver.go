@@ -48,9 +48,9 @@ func root(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/vnd.apple.mpegurl")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileinfo.Size()))
 		w.Header().Set("Accept-Ranges", "bytes")
-		io.Copy(w, fr)
 		query, _ := url.ParseQuery(r.URL.RawQuery)
 		go createStats(namefile, r.Header.Get("User-Agent"), realip.RealIP(r), getip(r.RemoteAddr), query.Get("city"))
+		io.Copy(w, fr)
 		fmt.Printf("%s TIEMPO: [%02d:%02d:%02d]\n", namefile, hh, mm, ss)
 		return
 	} else if strings.Contains(namefile, ".ts") {
@@ -158,6 +158,7 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 			Error.Println(err)
 		}
 	}
+	query.Close()
 	//Cuando no existe usuario, stream e ip
 	if count == 0 {
 		city, region, country, isocode, timezone, lat, long := geoIP(ipcliente) //Datos de geolocalización
