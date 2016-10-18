@@ -109,11 +109,21 @@ func root(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+
+/*
+Base de datos			Variable_OLD			Variable_NOW
+=================================================================
+	timestamp			time_old				time_now
+	time				tiempo_old				time_connect
+	totaltime			total_time_old			total_time
+	kilobytes			kb_old					kilobytes
+
+*/
 func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 	userAgent := map[string]string{"win": "Windows", "mac": "Mac OS X", "and": "Android", "lin": "Linux"}
 	var existe bool
 	var streamer, ipcliente, ipproxy, so, user, streamname string
-	var time_old, time_now, time_connect, tiempo_old, kilobytes, kb_old int64
+	var time_old, time_now, time_connect, tiempo_old, kilobytes, kb_old, total_time_old, total_time int64
 	//operaciones sobre el namefile
 	fmt.Sscanf(namefile, "/var/segments/live/%s", &streamer)
 	nom := strings.Split(streamer, ".")
@@ -145,7 +155,7 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 		ipproxy = remoteip
 	}
 	db_mu.RLock()
-	query, err := db.Query("SELECT timestamp, time, kilobytes FROM players WHERE username = ? AND streamname = ? AND ipclient= ? AND os = ?", user, streamname, ipcliente, so)
+	query, err := db.Query("SELECT timestamp, time, kilobytes, total_time FROM players WHERE username = ? AND streamname = ? AND ipclient= ? AND os = ?", user, streamname, ipcliente, so)
 	db_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
@@ -153,7 +163,7 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 	count := 0
 	for query.Next() {
 		count++
-		err = query.Scan(&time_old, &tiempo_old, &kb_old)
+		err = query.Scan(&time_old, &tiempo_old, &kb_old, &total_time_old)
 		if err != nil {
 			Error.Println(err)
 		}
@@ -167,6 +177,7 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 		}
 		time_connect = 0
 		kilobytes = 0
+		total_time = 0
 		if isocode == "" {
 			isocode = "OT" //cuando el isocode esta vacio, lo establecemos a OT (other)
 		}
@@ -174,8 +185,8 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 			country = "Unknown" //cuando el country esta vacio, lo establecemos a Unknown (desconocido)
 		}
 		db_mu.Lock()
-		_, err1 := db.Exec("INSERT INTO players (`username`, `streamname`, `os`, `ipproxy`, `ipclient`, `isocode`, `country`, `region`, `city`, `timezone`, `lat`, `long`, `timestamp`, `time`, `kilobytes`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-			user, streamname, so, ipproxy, ipcliente, isocode, country, region, city, timezone, lat, long, time_now, time_connect, kilobytes)
+		_, err1 := db.Exec("INSERT INTO players (`username`, `streamname`, `os`, `ipproxy`, `ipclient`, `isocode`, `country`, `region`, `city`, `timezone`, `lat`, `long`, `timestamp`, `time`, `kilobytes`, `total_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			user, streamname, so, ipproxy, ipcliente, isocode, country, region, city, timezone, lat, long, time_now, time_connect, kilobytes, total_time)
 		db_mu.Unlock()
 		if err1 != nil {
 			Error.Println(err1)
@@ -186,24 +197,25 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 			v = 0
 		}
 		bitrate := int64(v.(int) / 8000)                 // convertimos el valor a entero y calculamos el bitrate
-		kilobytes = kb_old + (time_now-time_old)*bitrate // cálculo de los KB que lleva consumidos
 		if time_now-time_old > 30 {                      // desconexión a los 30"
 			time_connect = 0
 		} else {
 			time_connect = tiempo_old + (time_now - time_old) // cálculo del tiempo que lleva conectado
 		}
+		total_time = total_time_old + (time_now - time_old)
+		kilobytes = kb_old + (time_now-time_old)*bitrate
 		if ciudad != "" {
 			db_mu.Lock()
-			_, err1 := db.Exec("UPDATE players SET username=?, streamname=?, os=?, ipproxy=?, ipclient=?, city=?, timestamp=?, time=?, kilobytes=? WHERE username = ? AND streamname = ? AND ipclient = ? AND os = ?",
-				user, streamname, so, ipproxy, ipcliente, ciudad, time_now, time_connect, kilobytes, user, streamname, ipcliente, so)
+			_, err1 := db.Exec("UPDATE players SET username=?, streamname=?, os=?, ipproxy=?, ipclient=?, city=?, timestamp=?, time=?, kilobytes=?, total_time=? WHERE username = ? AND streamname = ? AND ipclient = ? AND os = ?",
+				user, streamname, so, ipproxy, ipcliente, ciudad, time_now, time_connect, kilobytes, total_time, user, streamname, ipcliente, so)
 			db_mu.Unlock()
 			if err1 != nil {
 				Error.Println(err1)
 			}
 		}else{
 			db_mu.Lock()
-			_, err1 := db.Exec("UPDATE players SET username=?, streamname=?, os=?, ipproxy=?, ipclient=?, timestamp=?, time=?, kilobytes=? WHERE username = ? AND streamname = ? AND ipclient = ? AND os = ?",
-				user, streamname, so, ipproxy, ipcliente, time_now, time_connect, kilobytes, user, streamname, ipcliente, so)
+			_, err1 := db.Exec("UPDATE players SET username=?, streamname=?, os=?, ipproxy=?, ipclient=?, timestamp=?, time=?, kilobytes=?, total_time=? WHERE username = ? AND streamname = ? AND ipclient = ? AND os = ?",
+				user, streamname, so, ipproxy, ipcliente, time_now, time_connect, kilobytes, total_time, user, streamname, ipcliente, so)
 			db_mu.Unlock()
 			if err1 != nil {
 				Error.Println(err1)
