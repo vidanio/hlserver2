@@ -195,13 +195,19 @@ func mantenimiento() {
 		// Se saca la hora y los minutos
 		fecha_actual = fmt.Sprintf("%04d-%02d-%02d", anio, mes, dia) // Calculo de fecha actual
 		// Se comprueba si hay cambio de dia
-		if fecha_actual != fecha_antigua {
+		if fecha_actual != fecha_antigua { // dayly.db
 			cambio_de_fecha = true
+			if _, err := os.Stat(dirDaylys + fecha_actual + "dayly.db"); err == nil {
+				cambio_de_fecha = false // se debe a un reinicio del hlserver
+			}
 		}
 		// Se comprueba si hay cambio de mes
 		mes_actual = fecha_actual[0:7] // year-month
-		if mes_actual != mes_antiguo {
+		if mes_actual != mes_antiguo { // monthly.db
 			cambio_de_mes = true
+			if _, err := os.Stat(dirMonthlys+mes_actual+"monthly.db"); err == nil {
+				cambio_de_mes = false // se debe a un reinicio del hlserver
+			}
 		}
 		if cambio_de_mes {
 			// Aqui hago la copia de monthly.db en mes_actual + monthly.db
@@ -274,9 +280,9 @@ func mantenimiento() {
 				query.Close()
 			}
 		}
-		// Obtenemos los datos de los players retransmitiendo
+		// Obtenemos los datos de los players solo que estan activos
 		db_mu.RLock()
-		query, err := db.Query("SELECT username, streamname, os,  isocode, timestamp FROM players WHERE timestamp > ? AND time > 0", tiempo_limite)
+		query, err := db.Query("SELECT username, streamname, os,  isocode FROM players WHERE timestamp > ? AND time > 0", tiempo_limite)
 		db_mu.RUnlock()
 		if err != nil {
 			Error.Println(err)
@@ -286,9 +292,8 @@ func mantenimiento() {
 			Error.Println(err)
 		}
 		for query.Next() {
-			var time_por_stream int64
 			var u, s, o, i string
-			err = query.Scan(&u, &s, &o, &i, &time_por_stream)
+			err = query.Scan(&u, &s, &o, &i) // username, streamname, os,  isocode
 			if err != nil {
 				Error.Println(err)
 			}
