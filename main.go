@@ -239,12 +239,10 @@ func mantenimiento() {
 				if err != nil {
 					Error.Println(err)
 				}
-				defer db1.Close()
 				db2, err := sql.Open("sqlite3", dirMonthlys+mes_actual+"monthly.db") // Apertura de mes actual + Monthly.db
 				if err != nil {
 					Error.Println(err)
 				}
-				defer db2.Close()
 				//Declaracion de variables
 				var ips, minutos, megas, pico, horapico, minpico int
 				var userName, streamName string
@@ -278,6 +276,8 @@ func mantenimiento() {
 					query2.Close()
 				}
 				query.Close()
+				db2.Close()
+				db1.Close()
 			}
 		}
 		// Obtenemos los datos de los players solo que estan activos
