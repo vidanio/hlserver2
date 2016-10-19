@@ -19,6 +19,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"syscall"
 )
 
 var (
@@ -42,7 +43,12 @@ func init() {
 	Info = log.New(os.Stdout, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Warning = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Error = log.New(io.MultiWriter(file, os.Stderr), "ERROR :", log.Ldate|log.Ltime|log.Lshortfile)
-	db, err_db = sql.Open("sqlite3", DirDB)
+	// Antes de abrir la BD live
+	if _, err := os.Stat(DirRamDB+"live.db"); err != nil { // es la primera ejecución, o hemos reiniciado la maquina (reboot)
+		exec.Command("/bin/sh","-c",fmt.Sprintf("cp -f %slive.db* %slive.db*",DirDB,DirRamDB))
+		syscall.Sync()
+	}
+	db, err_db = sql.Open("sqlite3", DirRamDB+"live.db")
 	if err_db != nil {
 		Error.Println(err_db)
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
@@ -68,6 +74,15 @@ func main() {
 				exec.Command("/bin/sh", "-c", "/usr/bin/nginx").Run()
 			}
 			time.Sleep(1 * time.Second)
+		}
+	}()
+	go func() {
+		for {
+			time.Sleep(1 * time.Minute)
+			db_mu.Lock()
+			exec.Command("/bin/sh","-c",fmt.Sprintf("cp -f %slive.db* %slive.db*",DirRamDB,DirDB))
+			syscall.Sync()
+			db_mu.Unlock()
 		}
 	}()
 	go mantenimiento()

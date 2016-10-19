@@ -18,7 +18,8 @@ const (
 	spanHTMLlogerr         = "<span id='loginerr'></span>" // <span> donde publicar el mensaje de error de login
 	ErrorText              = "Error de Login"              // mensaje a mostrar tras un error de login en la pagina de login
 	logFile                = "/var/log/hlserver.log"       //ruta del archivo de errores
-	DirDB                  = "/usr/local/bin/live.db"
+	DirDB                  = "/usr/local/bin/"
+	DirRamDB			   = "/var/db/"
 	daylyDB                = "/usr/local/bin/dayly.db"         // base de datos de mantenimiento dirario
 	monthlyDB              = "/usr/local/bin/monthly.db"       // base de datos de mantenimiento mensual
 	dirDaylys              = "/usr/local/bin/daylys/"          // directorio donde se van almacenar las BDs de mantenimiento diario
