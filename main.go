@@ -19,7 +19,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"syscall"
 )
 
 var (
@@ -45,14 +44,15 @@ func init() {
 	Error = log.New(io.MultiWriter(file, os.Stderr), "ERROR :", log.Ldate|log.Ltime|log.Lshortfile)
 	// Antes de abrir la BD live
 	if _, err := os.Stat(DirRamDB+"live.db"); err != nil { // es la primera ejecución, o hemos reiniciado la maquina (reboot)
-		exec.Command("/bin/sh","-c",fmt.Sprintf("cp -f %slive.db* %slive.db*",DirDB,DirRamDB))
-		syscall.Sync()
+		exec.Command("/bin/sh","-c",fmt.Sprintf("cp -f %slive.db* %s",DirDB,DirRamDB)).Run()
+		exec.Command("/bin/sh","-c","sync").Run()
 	}
 	db, err_db = sql.Open("sqlite3", DirRamDB+"live.db")
 	if err_db != nil {
 		Error.Println(err_db)
 		log.Fatalln("Fallo al abrir el archivo de error:", err_db)
 	}
+	db.Exec("PRAGMA journal_mode=WAL;")
 	Bw_int = syncmap.New()
 }
 
@@ -80,8 +80,8 @@ func main() {
 		for {
 			time.Sleep(1 * time.Minute)
 			db_mu.Lock()
-			exec.Command("/bin/sh","-c",fmt.Sprintf("cp -f %slive.db* %slive.db*",DirRamDB,DirDB))
-			syscall.Sync()
+			exec.Command("/bin/sh","-c",fmt.Sprintf("cp -f %slive.db* %slive.db*",DirRamDB,DirDB)).Run()
+			exec.Command("/bin/sh","-c","sync").Run()
 			db_mu.Unlock()
 		}
 	}()
