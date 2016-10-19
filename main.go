@@ -143,8 +143,8 @@ func encoder() {
 			time.Sleep(3 * time.Second)
 			continue
 		}
-		defer resp.Body.Close()
 		body, err := ioutil.ReadAll(resp.Body)
+		resp.Body.Close()
 		v := Result{}
 		err = xml.Unmarshal([]byte(body), &v)
 		if err != nil {
@@ -204,7 +204,6 @@ func mantenimiento() {
 	for {
 		cambio_de_fecha := false
 		cambio_de_mes := false
-		tiempo_limite := time.Now().Unix() - 30
 		hh, mm, _ := time.Now().Clock()
 		anio, mes, dia := time.Now().Date() //Fecha actual
 		// Se saca la hora y los minutos
@@ -241,105 +240,85 @@ func mantenimiento() {
 				fechaMonth := fmt.Sprintf("%s:%s", datos_antiguos[1], datos_antiguos[2])
 				// Antes de nada borramos los players con timestamp a más de 1 día
 				db_mu.Lock()
-				db.Query("DELETE FROM players WHERE timestamp < ?", limit_time)
+				db.Exec("DELETE FROM players WHERE timestamp < ?", limit_time)
 				db_mu.Unlock()
-				// Se seleccionan el total de Ips, los minutos totales y el total de megabytes (cambiamos los minutos por horas y los megas por gigas)
+				// Se seleccionan el total de Ips, las horas totales y el total de Gigabytes
 				db_mu.RLock()
-				query, err := db.Query("SELECT count(ipclient), sum(time)/3600, sum(kilobytes)/1000000 FROM players GROUP BY username, streamname, os")
+				query, err := db.Query("SELECT count(ipclient), sum(total_time)/3600, sum(kilobytes)/1000000, username, streamname FROM players GROUP BY username, streamname")
 				db_mu.RUnlock()
 				if err != nil {
 					Error.Println(err)
 				}
-				db1, err := sql.Open("sqlite3", dirDaylys+fecha_antigua+"dayly.db") // Apertura de la dateDayly.db antigua
+				db1, err := sql.Open("sqlite3", dirDaylys+fecha_antigua+"dayly.db") // Apertura de la dateDayly.db antigua para lectura del pico/hora
 				if err != nil {
 					Error.Println(err)
 				}
-				db2, err := sql.Open("sqlite3", dirMonthlys+mes_actual+"monthly.db") // Apertura de mes actual + Monthly.db
+				db2, err := sql.Open("sqlite3", dirMonthlys+mes_actual+"monthly.db") // Apertura de mes actual + Monthly.db para escritura del resumen del pasado dia
 				if err != nil {
 					Error.Println(err)
 				}
 				//Declaracion de variables
-				var ips, minutos, megas, pico, horapico, minpico int
+				var ips, horas, gigas, pico, horapico, minpico int
 				var userName, streamName string
 				for query.Next() {
-					err = query.Scan(&ips, &minutos, &megas)
+					err = query.Scan(&ips, &horas, &gigas, &userName, &streamName)
 					if err != nil {
 						Error.Println(err)
 					}
 					// Se seleccionan el máximo de usuarios conectados, y la hora:min de la dayly antigua
+					// SELECT sum(count) AS cuenta, username, streamname, hour, minutes FROM resumen WHERE username = ? AND streamname = ? GROUP BY username, streamname, hour, minutes ORDER BY cuenta DESC
 					dbday_mu.RLock()
-					query2, err := db1.Query("SELECT username, streamname, max(count), hour, minutes FROM resumen GROUP BY username, streamname")
+					err := db1.QueryRow("SELECT sum(count) AS cuenta, username, streamname, hour, minutes FROM resumen WHERE username = ? AND streamname = ? GROUP BY username, streamname, hour, minutes ORDER BY cuenta DESC",userName ,streamName ).Scan(&pico, &userName, &streamName, &horapico, &minpico)
 					dbday_mu.RUnlock()
 					if err != nil {
 						Error.Println(err)
 					}
-					for query2.Next() {
-						err = query2.Scan(&userName, &streamName, &pico, &horapico, &minpico)
-						if err != nil {
-							Error.Println(err)
-						}
-						hourMin := fmt.Sprintf("%02d:%02d", horapico, minpico) //hour:min para monthly.db
-						dbmon_mu.Lock()
-						// Inserto los datos de resumen mensual
-						_, err1 := db2.Exec("INSERT INTO resumen (`username`,`streamname`, `audiencia`, `minutos`, `pico`, `horapico`, `megabytes`, `fecha`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-							userName, streamName, ips, minutos, pico, hourMin, megas, fechaMonth)
-						dbmon_mu.Unlock()
-						if err1 != nil {
-							Error.Println(err1)
-						}
+					hourMin := fmt.Sprintf("%02d:%02d", horapico, minpico) //hour:min para monthly.db
+					dbmon_mu.Lock()
+					// Inserto los datos de resumen mensual
+					_, err1 := db2.Exec("INSERT INTO resumen (`username`,`streamname`, `audiencia`, `minutos`, `pico`, `horapico`, `megabytes`, `fecha`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+						userName, streamName, ips, horas, pico, hourMin, gigas, fechaMonth)
+					dbmon_mu.Unlock()
+					if err1 != nil {
+						Error.Println(err1)
 					}
-					query2.Close()
 				}
 				query.Close()
 				db2.Close()
 				db1.Close()
 			}
 		}
-		// Obtenemos los datos de los players solo que estan activos
-		db_mu.RLock()
-		query, err := db.Query("SELECT username, streamname, os,  isocode FROM players WHERE timestamp > ? AND time > 0", tiempo_limite)
-		db_mu.RUnlock()
-		if err != nil {
-			Error.Println(err)
-		}
+		// Solo grabaremos en este minuto en dayly.db los q estan activos ahora mismo
+		tiempo_limite := time.Now().Unix() - 30
+		var user, stream, so, isocode string
+		var num_filas, total_time, total_kb int
 		db3, err := sql.Open("sqlite3", dirDaylys+fecha_actual+"dayly.db") // Apertura de dateDayly.db
 		if err != nil {
 			Error.Println(err)
 		}
+		db_mu.RLock()
+		query, err := db.Query("SELECT count(ipclient), username, streamname, os,  isocode, sum(total_time), sum(kilobytes) FROM players WHERE timestamp > ? AND time > 0 GROUP BY username, streamname, os, isocode",tiempo_limite)
+		db_mu.RUnlock()
+		if err != nil {
+			Error.Println(err)
+		}
 		for query.Next() {
-			var u, s, o, i string
-			err = query.Scan(&u, &s, &o, &i) // username, streamname, os,  isocode
+			err = query.Scan(&num_filas, &user, &stream, &so, &isocode, &total_time, &total_kb)
 			if err != nil {
 				Error.Println(err)
 			}
-			// Resumen de los datos a dateDayly.db
-			var user, stream, so, isocode string
-			var num_filas, total_time, total_kb int
-			// Seleccionar datos de players
-			db_mu.RLock()
-			query2, err := db.Query("SELECT count(*), username, streamname, os,  isocode, sum(time), sum(kilobytes) FROM players WHERE username=? AND streamname=? AND os=? AND isocode=? GROUP BY username, streamname, os, isocode", &u, &s, &o, &i)
-			db_mu.RUnlock()
-			if err != nil {
-				Error.Println(err)
+			dbday_mu.Lock()
+			// inserto los datos de resumen
+			_, err1 := db3.Exec("INSERT INTO resumen (`username`, `streamname`, `os`, `isocode`, `time`, `kilobytes`, `count`, `hour`, `minutes`, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+				user, stream, so, isocode, total_time, total_kb, num_filas, hh, mm, fecha_actual)
+			dbday_mu.Unlock()
+			if err1 != nil {
+				Error.Println(err1)
 			}
-			for query2.Next() {
-				err = query2.Scan(&num_filas, &user, &stream, &so, &isocode, &total_time, &total_kb)
-				if err != nil {
-					Error.Println(err)
-				}
-				dbday_mu.Lock()
-				// inserto los datos de resumen
-				_, err1 := db3.Exec("INSERT INTO resumen (`username`, `streamname`, `os`, `isocode`, `time`, `kilobytes`, `count`, `hour`, `minutes`, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-					user, stream, so, isocode, total_time, total_kb, num_filas, hh, mm, fecha_actual)
-				dbday_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-				}
-			}
-			query2.Close()
 		}
 		query.Close()
 		db3.Close()
+
 		fecha_antigua = fecha_actual
 		mes_antiguo = mes_actual
 		time.Sleep(1 * time.Minute)
