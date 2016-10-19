@@ -80,7 +80,7 @@ func main() {
 		for {
 			time.Sleep(1 * time.Minute)
 			db_mu.Lock()
-			exec.Command("/bin/sh","-c",fmt.Sprintf("cp -f %slive.db* %slive.db*",DirRamDB,DirDB)).Run()
+			exec.Command("/bin/sh","-c",fmt.Sprintf("cp -f %slive.db* %s",DirRamDB,DirDB)).Run()
 			exec.Command("/bin/sh","-c","sync").Run()
 			db_mu.Unlock()
 		}
