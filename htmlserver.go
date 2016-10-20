@@ -199,11 +199,13 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 		bitrate := int64(v.(int) / 8000)                 // convertimos el valor a entero y calculamos el bitrate
 		if time_now-time_old > 30 {                      // desconexión a los 30"
 			time_connect = 0
+			total_time = total_time_old
+			kilobytes = kb_old
 		} else {
 			time_connect = tiempo_old + (time_now - time_old) // cálculo del tiempo que lleva conectado
+			total_time = total_time_old + (time_now - time_old)
+			kilobytes = kb_old + (time_now-time_old)*bitrate
 		}
-		total_time = total_time_old + (time_now - time_old)
-		kilobytes = kb_old + (time_now-time_old)*bitrate
 		if ciudad != "" {
 			db_mu.Lock()
 			_, err1 := db.Exec("UPDATE players SET username=?, streamname=?, os=?, ipproxy=?, ipclient=?, city=?, timestamp=?, time=?, kilobytes=?, total_time=? WHERE username = ? AND streamname = ? AND ipclient = ? AND os = ?",

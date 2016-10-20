@@ -286,6 +286,10 @@ func mantenimiento() {
 				query.Close()
 				db2.Close()
 				db1.Close()
+				// Ponemos kilobytes, total_time a CERO de live.db xq empezamos un nuevo dia con trafico y horas acumuladas a CERO
+				db_mu.Lock()
+				db.Exec("UPDATE players SET kilobytes=0 , total_time=0")
+				db_mu.Unlock()
 			}
 		}
 		// Solo grabaremos en este minuto en dayly.db los q estan activos ahora mismo
