@@ -367,8 +367,9 @@ func totalMonthsChange(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		query.Close()
-		table := fmt.Sprintf("<tr><th>%s</th><td>&nbsp;</td><td>&nbsp;</td></tr><tr><th>Total de horas consumidas: </th><td>&nbsp;</td><td>%d</td></tr><tr><th>Total de GB consumidos: </th><td>&nbsp;</td><td>%d</td></tr>", username, minutos, megas)
-		fmt.Fprintf(w, "%s", table)
+		table := fmt.Sprintf("<tr><th>Total de horas consumidas: </th><td>&nbsp;</td><td>%d</td></tr><tr><th>Total de GB consumidos: </th><td>&nbsp;</td><td>%d</td></tr>", minutos, megas)
+		table2 := fmt.Sprintf("%s", username)
+		fmt.Fprintf(w, "%s;%s", table2, table)
 	}
 }
 // Se crean los canvas para colocar los gráficos
