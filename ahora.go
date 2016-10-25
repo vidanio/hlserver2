@@ -16,23 +16,24 @@ func encoderStatNow(w http.ResponseWriter, r *http.Request) {
 	hora := fmt.Sprintf("%02d:%02d", hh, mm)
 	tiempo_limite := time.Now().Unix() - 6 //tiempo limite de 6 seg
 	db_mu.RLock()
-	query, err := db.Query("SELECT streamname, isocode, ip, country, time FROM encoders WHERE username = ? AND timestamp > ?", username, tiempo_limite)
+	query, err := db.Query("SELECT streamname, isocode, ip, country, time, bitrate, info FROM encoders WHERE username = ? AND timestamp > ?", username, tiempo_limite)
 	db_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
 	}
-	fmt.Fprintf(w, "<p><b>Conectados el día %s a las %s UTC</b></p><table class=\"table table-striped table-bordered table-hover\"><th>Play</th><th>País</th><th>Ip</th><th>Stream</th><th>Tiempo conectado</th>", fecha, hora)
+	fmt.Fprintf(w, "<h1>%s</h1><p><b>Conectados el día %s a las %s UTC</b></p><table class=\"table table-striped table-bordered table-hover\"><th>Play</th><th>INFO</th><th>País</th><th>IP</th><th>Stream</th><th>Tiempo conectado</th>", username, fecha, hora)
 	for query.Next() {
-		var isocode, country, streamname, ip, time_connect string
-		var tiempo int
-		err = query.Scan(&streamname, &isocode, &ip, &country, &tiempo)
+		var isocode, country, streamname, ip, time_connect, info string
+		var tiempo, bitrate int
+		err = query.Scan(&streamname, &isocode, &ip, &country, &tiempo, &bitrate, &info)
 		if err != nil {
 			Warning.Println(err)
 		}
 		isocode = strings.ToLower(isocode)
 		time_connect = secs2time(tiempo)
-		fmt.Fprintf(w, "<tr><td><a href=\"javascript:launchRemote('play.cgi?stream=%s')\"><img src='images/play.jpg' border='0' title='Play %s'/></a></td><td><img src=\"images/flags/%s.png\" title=\"%s\"></td><td>%s</td><td>%s</td><td>%s</td></tr>",
-			streamname, streamname, isocode, country, ip, streamname, time_connect)
+		INFO := fmt.Sprintf("%s [%d kbps]", info, bitrate/1000)
+		fmt.Fprintf(w, "<tr><td><a href=\"javascript:launchRemote('play.cgi?stream=%s')\"><img src='images/play.jpg' border='0' title='Play %s'/></a></td><td>%s</td><td><img src=\"images/flags/%s.png\" title=\"%s\"></td><td>%s</td><td>%s</td><td>%s</td></tr>",
+			streamname, streamname, INFO, isocode, country, ip, streamname, time_connect)
 	}
 	query.Close()
 	fmt.Fprintf(w, "</table>")

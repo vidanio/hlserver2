@@ -60,7 +60,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 	//Fecha actual
 	fecha_actual := fmt.Sprintf("%02d-%02d-%02d", anio, mes, dia) // Fecha actual
 	fecha_ESP := fmt.Sprintf("%02d/%02d/%02d", dia, mes, anio)    // Fecha a mostrar en el html
-	fecha_ESP = "Estadísticas correspondientes al día " + fecha_ESP
+	fecha_ESP = "Estadísticas correspondientes al día " + fecha_ESP + " de " + username
 	// La primera vez que se entra a la web, se abre el fichero de dayly.db actual
 	db_now, err := sql.Open("sqlite3", dirDaylys+fecha_actual+"dayly.db")
 	if err != nil {

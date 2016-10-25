@@ -160,7 +160,7 @@ func encoder() {
 			tiempo := toInt(v.Time[k]) / 1000          // Conversión msec to sec
 			tiempo_now := time.Now().Unix()            // Tiempo actual
 			Bw_int.Set(v.Nombre[k], toInt(v.Bw_in[k])) // Guardamos el bitrate
-			info := fmt.Sprintf("%sx%sx%s %s/%s", v.Height[k], v.Width[k], v.Frame[k], v.Vcodec[k], v.Acodec[k])
+			info := fmt.Sprintf("%sx%sx%s %s/%s", v.Width[k], v.Height[k], v.Frame[k], v.Vcodec[k], v.Acodec[k])
 			db_mu.RLock()
 			err := db.QueryRow("SELECT count(*) FROM encoders WHERE username = ? AND streamname = ? AND ip= ?", username, streamname, v.Ip[k]).Scan(&count)
 			db_mu.RUnlock()
