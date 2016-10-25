@@ -66,7 +66,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 				country, isocode, country, ips, streamname)
 		}
 		query.Close()
-		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='6'><b>Total:</b> %d players conectados</td></tr></table>", contador)
+		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='7'><b>Total:</b> %d players conectados</td></tr></table>", contador)
 	} else {
 		db_mu.RLock()
 		query, err := db.Query("SELECT isocode, country, region, city, ipclient, os, streamname, time FROM players WHERE username = ? AND timestamp > ? AND time > 0", username, tiempo_limite)
