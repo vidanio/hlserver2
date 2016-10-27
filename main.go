@@ -126,18 +126,26 @@ func encoder() {
 	var username, streamname string
 	var count int
 	for {
-		type Result struct {
-			Nombre []string `xml:"server>application>live>stream>name"`
-			Time   []string `xml:"server>application>live>stream>time"`
-			Bw_in  []string `xml:"server>application>live>stream>bw_in"`
-			Ip     []string `xml:"server>application>live>stream>client>address"`
-			Width  []string `xml:"server>application>live>stream>meta>video>width"`
-			Height []string `xml:"server>application>live>stream>meta>video>height"`
-			Frame  []string `xml:"server>application>live>stream>meta>video>frame_rate"`
-			Vcodec []string `xml:"server>application>live>stream>meta>video>codec"`
-			Acodec []string `xml:"server>application>live>stream>meta>audio>codec"`
+		type Client struct {
+			Ip			string  `xml:"address"`
+			Time 		string  `xml:"time"`
+			Publish 	int  	`xml:"publishing"`
 		}
-		resp, err := http.Get("http://127.0.0.1:8080/stats")
+		type Stream struct {
+			Nombre 		string `xml:"name"`
+			Bw_in  		string `xml:"bw_in"`
+			Width  		string `xml:"meta>video>width"`
+			Height 		string `xml:"meta>video>height"`
+			Frame  		string `xml:"meta>video>frame_rate"`
+			Vcodec 		string `xml:"meta>video>codec"`
+			Acodec 		string `xml:"meta>audio>codec"`
+			ClientList  []Client `xml:"client"`
+		}
+		type Result struct {
+			Stream		[]Stream  `xml:"server>application>live>stream"`
+			
+		}
+		resp, err := http.Get("http://panel.cdnstreamserver.com:8080/stats")
 		if err != nil {
 			Warning.Println(err)
 			time.Sleep(3 * time.Second)
@@ -151,45 +159,49 @@ func encoder() {
 			Error.Printf("xml read error: %s", err)
 			return
 		}
-		for k, _ := range v.Nombre {
-			userstream := strings.Split(v.Nombre[k], "-")
-			if len(userstream) > 1 {
-				username = userstream[0]
-				streamname = userstream[1]
-			}
-			tiempo := toInt(v.Time[k]) / 1000          // Conversión msec to sec
-			tiempo_now := time.Now().Unix()            // Tiempo actual
-			Bw_int.Set(v.Nombre[k], toInt(v.Bw_in[k])) // Guardamos el bitrate
-			info := fmt.Sprintf("%sx%sx%s %s/%s", v.Width[k], v.Height[k], v.Frame[k], v.Vcodec[k], v.Acodec[k])
-			db_mu.RLock()
-			err := db.QueryRow("SELECT count(*) FROM encoders WHERE username = ? AND streamname = ? AND ip= ?", username, streamname, v.Ip[k]).Scan(&count)
-			db_mu.RUnlock()
-			if err != nil {
-				Error.Println(err)
-			}
-			//Cuando no existe usuario, stream e ip
-			if count == 0 {
-				city, region, country, isocode, timezone, lat, long := geoIP(v.Ip[k]) // Datos de geolocalización
-				if isocode == "" {
-					isocode = "OT" //cuando el isocode esta vacio, lo establecemos a OT (other)
-				}
-				if country == "" {
-					country = "Unknown" //cuando el country esta vacio, lo establecemos a Unknown (desconocido)
-				}
-				db_mu.Lock()
-				_, err1 := db.Exec("INSERT INTO encoders (`username`, `streamname`, `time`, `bitrate`, `ip`, `info`, `isocode`, `country`, `region`, `city`, `timezone`, `lat`, `long`, `timestamp`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-					username, streamname, tiempo, toInt(v.Bw_in[k]), v.Ip[k], info, isocode, country, region, city, timezone, lat, long, tiempo_now)
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
-				}
-			} else {
-				db_mu.Lock()
-				_, err1 := db.Exec("UPDATE encoders SET username=?, streamname=?, time=?, bitrate=?, ip=?, info=?, timestamp=? WHERE username = ? AND streamname = ? AND ip = ?",
-					username, streamname, tiempo, toInt(v.Bw_in[k]), v.Ip[k], info, tiempo_now, username, streamname, v.Ip[k])
-				db_mu.Unlock()
-				if err1 != nil {
-					Error.Println(err1)
+		for _, val := range v.Stream {
+			for _, val2 := range val.ClientList {
+				if val2.Publish == 1 {
+					userstream := strings.Split(val.Nombre, "-")
+					if len(userstream) > 1 {
+						username = userstream[0]
+						streamname = userstream[1]
+					}
+					tiempo := toInt(val2.Time) / 1000          // Conversión msec to sec
+					tiempo_now := time.Now().Unix()            // Tiempo actual
+					Bw_int.Set(val.Nombre, toInt(val.Bw_in)) // Guardamos el bitrate
+					info := fmt.Sprintf("%sx%sx%s %s/%s", val.Width, val.Height, val.Frame, val.Vcodec, val.Acodec)
+					db_mu.RLock()
+					err := db.QueryRow("SELECT count(*) FROM encoders WHERE username = ? AND streamname = ? AND ip= ?", username, streamname, val2.Ip).Scan(&count)
+					db_mu.RUnlock()
+					if err != nil {
+						Error.Println(err)
+					}
+					//Cuando no existe usuario, stream e ip
+					if count == 0 {
+						city, region, country, isocode, timezone, lat, long := geoIP(val2.Ip) // Datos de geolocalización
+						if isocode == "" {
+							isocode = "OT" //cuando el isocode esta vacio, lo establecemos a OT (other)
+						}
+						if country == "" {
+							country = "Unknown" //cuando el country esta vacio, lo establecemos a Unknown (desconocido)
+						}
+						db_mu.Lock()
+						_, err1 := db.Exec("INSERT INTO encoders (`username`, `streamname`, `time`, `bitrate`, `ip`, `info`, `isocode`, `country`, `region`, `city`, `timezone`, `lat`, `long`, `timestamp`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+							username, streamname, tiempo, toInt(val.Bw_in), val2.Ip, info, isocode, country, region, city, timezone, lat, long, tiempo_now)
+						db_mu.Unlock()
+						if err1 != nil {
+							Error.Println(err1)
+						}
+					} else {
+						db_mu.Lock()
+						_, err1 := db.Exec("UPDATE encoders SET username=?, streamname=?, time=?, bitrate=?, ip=?, info=?, timestamp=? WHERE username = ? AND streamname = ? AND ip = ?",
+							username, streamname, tiempo, toInt(val.Bw_in), val2.Ip, info, tiempo_now, username, streamname, val2.Ip)
+						db_mu.Unlock()
+						if err1 != nil {
+							Error.Println(err1)
+						}
+					}
 				}
 			}
 		}
