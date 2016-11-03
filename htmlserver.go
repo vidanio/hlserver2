@@ -46,6 +46,11 @@ func root(w http.ResponseWriter, r *http.Request) {
 	if strings.Contains(namefile, ".m3u8") {
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Content-Type", "application/vnd.apple.mpegurl")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Expose-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileinfo.Size()))
 		w.Header().Set("Accept-Ranges", "bytes")
 		query, _ := url.ParseQuery(r.URL.RawQuery)
@@ -56,7 +61,11 @@ func root(w http.ResponseWriter, r *http.Request) {
 	} else if strings.Contains(namefile, ".ts") {
 		w.Header().Set("Cache-Control", "max-age=300")
 		w.Header().Set("Content-Type", "video/MP2T")
-		w.Header().Set("Content-Length", "application/vnd.apple.mpegurl")
+		w.Header().Set("Access-Control-Allow-Headers", "*")
+		w.Header().Set("Access-Control-Expose-Headers", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileinfo.Size()))
 		w.Header().Set("Accept-Ranges", "bytes")
 		io.Copy(w, fr)
@@ -109,7 +118,6 @@ func root(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 /*
 Base de datos			Variable_OLD			Variable_NOW
 =================================================================
@@ -130,8 +138,8 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 	userstream := nom[0] // user-stream
 	username := strings.Split(userstream, "-")
 	if len(username) > 1 {
-		user = username[0]           // user
-		streamname = username[1]     // stream
+		user = username[0]       // user
+		streamname = username[1] // stream
 	}
 	time_now = time.Now().Unix() //tiempo actual
 	//operaciones para el user agent
@@ -196,8 +204,8 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 		if ok == false {
 			v = 0
 		}
-		bitrate := int64(v.(int) / 8000)                 // convertimos el valor a entero y calculamos el bitrate
-		if time_now-time_old > 30 {                      // desconexión a los 30"
+		bitrate := int64(v.(int) / 8000) // convertimos el valor a entero y calculamos el bitrate
+		if time_now-time_old > 30 {      // desconexión a los 30"
 			time_connect = 0
 			total_time = total_time_old
 			kilobytes = kb_old
@@ -214,7 +222,7 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 			if err1 != nil {
 				Error.Println(err1)
 			}
-		}else{
+		} else {
 			db_mu.Lock()
 			_, err1 := db.Exec("UPDATE players SET username=?, streamname=?, os=?, ipproxy=?, ipclient=?, timestamp=?, time=?, kilobytes=?, total_time=? WHERE username = ? AND streamname = ? AND ipclient = ? AND os = ?",
 				user, streamname, so, ipproxy, ipcliente, time_now, time_connect, kilobytes, total_time, user, streamname, ipcliente, so)
