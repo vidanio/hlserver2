@@ -43,9 +43,9 @@ func init() {
 	Warning = log.New(os.Stdout, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
 	Error = log.New(io.MultiWriter(file, os.Stderr), "ERROR :", log.Ldate|log.Ltime|log.Lshortfile)
 	// Antes de abrir la BD live
-	if _, err := os.Stat(DirRamDB+"live.db"); err != nil { // es la primera ejecución, o hemos reiniciado la maquina (reboot)
-		exec.Command("/bin/sh","-c",fmt.Sprintf("cp -f %slive.db* %s",DirDB,DirRamDB)).Run()
-		exec.Command("/bin/sh","-c","sync").Run()
+	if _, err := os.Stat(DirRamDB + "live.db"); err != nil { // es la primera ejecución, o hemos reiniciado la maquina (reboot)
+		exec.Command("/bin/sh", "-c", fmt.Sprintf("cp -f %slive.db* %s", DirDB, DirRamDB)).Run()
+		exec.Command("/bin/sh", "-c", "sync").Run()
 	}
 	db, err_db = sql.Open("sqlite3", DirRamDB+"live.db")
 	if err_db != nil {
@@ -80,14 +80,22 @@ func main() {
 		for {
 			time.Sleep(1 * time.Minute)
 			db_mu.Lock()
-			exec.Command("/bin/sh","-c",fmt.Sprintf("cp -f %slive.db* %s",DirRamDB,DirDB)).Run()
-			exec.Command("/bin/sh","-c","sync").Run()
+			exec.Command("/bin/sh", "-c", fmt.Sprintf("cp -f %slive.db* %s", DirRamDB, DirDB)).Run()
+			exec.Command("/bin/sh", "-c", "sync").Run()
 			db_mu.Unlock()
 		}
 	}()
 	go mantenimiento()
 	go encoder()
 	// Handlers del Servidor HTTP
+	s := &http.Server{
+		Addr:           ":" + http_port,  // config http port
+		Handler:        nil,              // Default Muxer for handler as usual
+		ReadTimeout:    20 * time.Second, // send a segment in POST body
+		WriteTimeout:   20 * time.Second, // receive a segment in GET req
+		MaxHeaderBytes: 1 << 13,          // 8K as Apache and others
+	}
+
 	http.HandleFunc("/", root)
 	http.HandleFunc(login_cgi, login)
 	http.HandleFunc(logout_cgi, logout)
@@ -118,8 +126,8 @@ func main() {
 	http.HandleFunc("/buscarClientes.cgi", buscarClientes)
 	http.HandleFunc("/totalMonths.cgi", totalMonths)
 	http.HandleFunc("/totalMonthsChange.cgi", totalMonthsChange)
-	
-	log.Fatal(http.ListenAndServe(":"+http_port, nil)) // Servidor HTTP multihilo
+
+	log.Fatal(s.ListenAndServe()) // Servidor HTTP multihilo
 }
 
 func encoder() {
@@ -127,23 +135,22 @@ func encoder() {
 	var count int
 	for {
 		type Client struct {
-			Ip			string  `xml:"address"`
-			Time 		string  `xml:"time"`
-			Publish 	int  	`xml:"publishing"`
+			Ip      string `xml:"address"`
+			Time    string `xml:"time"`
+			Publish int    `xml:"publishing"`
 		}
 		type Stream struct {
-			Nombre 		string `xml:"name"`
-			Bw_in  		string `xml:"bw_in"`
-			Width  		string `xml:"meta>video>width"`
-			Height 		string `xml:"meta>video>height"`
-			Frame  		string `xml:"meta>video>frame_rate"`
-			Vcodec 		string `xml:"meta>video>codec"`
-			Acodec 		string `xml:"meta>audio>codec"`
-			ClientList  []Client `xml:"client"`
+			Nombre     string   `xml:"name"`
+			Bw_in      string   `xml:"bw_in"`
+			Width      string   `xml:"meta>video>width"`
+			Height     string   `xml:"meta>video>height"`
+			Frame      string   `xml:"meta>video>frame_rate"`
+			Vcodec     string   `xml:"meta>video>codec"`
+			Acodec     string   `xml:"meta>audio>codec"`
+			ClientList []Client `xml:"client"`
 		}
 		type Result struct {
-			Stream		[]Stream  `xml:"server>application>live>stream"`
-			
+			Stream []Stream `xml:"server>application>live>stream"`
 		}
 		resp, err := http.Get("http://panel.cdnstreamserver.com:8080/stats")
 		if err != nil {
@@ -167,8 +174,8 @@ func encoder() {
 						username = userstream[0]
 						streamname = userstream[1]
 					}
-					tiempo := toInt(val2.Time) / 1000          // Conversión msec to sec
-					tiempo_now := time.Now().Unix()            // Tiempo actual
+					tiempo := toInt(val2.Time) / 1000        // Conversión msec to sec
+					tiempo_now := time.Now().Unix()          // Tiempo actual
 					Bw_int.Set(val.Nombre, toInt(val.Bw_in)) // Guardamos el bitrate
 					info := fmt.Sprintf("%sx%sx%s %s/%s", val.Width, val.Height, val.Frame, val.Vcodec, val.Acodec)
 					db_mu.RLock()
@@ -231,7 +238,7 @@ func mantenimiento() {
 		mes_actual = fecha_actual[0:7] // year-month
 		if mes_actual != mes_antiguo { // monthly.db
 			cambio_de_mes = true
-			if _, err := os.Stat(dirMonthlys+mes_actual+"monthly.db"); err == nil {
+			if _, err := os.Stat(dirMonthlys + mes_actual + "monthly.db"); err == nil {
 				cambio_de_mes = false // se debe a un reinicio del hlserver
 			}
 		}
@@ -280,7 +287,7 @@ func mantenimiento() {
 					// Se seleccionan el máximo de usuarios conectados, y la hora:min de la dayly antigua
 					// SELECT sum(count) AS cuenta, username, streamname, hour, minutes FROM resumen WHERE username = ? AND streamname = ? GROUP BY username, streamname, hour, minutes ORDER BY cuenta DESC
 					dbday_mu.RLock()
-					err := db1.QueryRow("SELECT sum(count) AS cuenta, username, streamname, hour, minutes FROM resumen WHERE username = ? AND streamname = ? GROUP BY username, streamname, hour, minutes ORDER BY cuenta DESC",userName ,streamName ).Scan(&pico, &userName, &streamName, &horapico, &minpico)
+					err := db1.QueryRow("SELECT sum(count) AS cuenta, username, streamname, hour, minutes FROM resumen WHERE username = ? AND streamname = ? GROUP BY username, streamname, hour, minutes ORDER BY cuenta DESC", userName, streamName).Scan(&pico, &userName, &streamName, &horapico, &minpico)
 					dbday_mu.RUnlock()
 					if err != nil {
 						Error.Println(err)
@@ -313,7 +320,7 @@ func mantenimiento() {
 			Error.Println(err)
 		}
 		db_mu.RLock()
-		query, err := db.Query("SELECT count(ipclient), username, streamname, os,  isocode, sum(total_time), sum(kilobytes) FROM players WHERE timestamp > ? AND time > 0 GROUP BY username, streamname, os, isocode",tiempo_limite)
+		query, err := db.Query("SELECT count(ipclient), username, streamname, os,  isocode, sum(total_time), sum(kilobytes) FROM players WHERE timestamp > ? AND time > 0 GROUP BY username, streamname, os, isocode", tiempo_limite)
 		db_mu.RUnlock()
 		if err != nil {
 			Error.Println(err)
@@ -384,6 +391,7 @@ func loadSettings(filename string) {
 		}
 	}
 }
+
 //ver si un proceso está corriendo
 func procsrunning(name string) int {
 	exe := fmt.Sprintf("/usr/bin/pgrep %s | /usr/bin/wc -l", name)

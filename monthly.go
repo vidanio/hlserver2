@@ -311,6 +311,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
 // Funcion que muestra el total de horas y gigas consumidos (por primera vez)
 func totalMonths(w http.ResponseWriter, r *http.Request) {
 	var minutos, megas int
@@ -337,6 +338,7 @@ func totalMonths(w http.ResponseWriter, r *http.Request) {
 	table := fmt.Sprintf("<tr><th>Total de horas consumidas: </th><td>&nbsp;</td><td>%d</td></tr><tr><th>Total de GB consumidos: </th><td>&nbsp;</td><td>%d</td></tr>", minutos, megas)
 	fmt.Fprintf(w, "%s", table)
 }
+
 // Funcion que muestra el total de horas y gigas consumidos (con cambio de mes)
 func totalMonthsChange(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -371,6 +373,7 @@ func totalMonthsChange(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s", table)
 	}
 }
+
 // Se crean los canvas para colocar los gráficos
 func createGraf(w http.ResponseWriter, r *http.Request) {
 	canv1 := "<label>Audiencia Total por personas</label><canvas id='graficop1'/>"
@@ -381,6 +384,7 @@ func createGraf(w http.ResponseWriter, r *http.Request) {
 	canv6 := "<label>Hora Pico de Audiencia</label><canvas id='graficop6'/>"
 	fmt.Fprintf(w, "%s;%s;%s;%s;%s;%s", canv1, canv2, canv3, canv4, canv5, canv6)
 }
+
 // devuelve el numero de dias de un mes y año determinados
 func daysIn(m time.Month, year int) int {
 	return time.Date(year, m+1, 0, 0, 0, 0, 0, time.UTC).Day()
@@ -391,6 +395,7 @@ func daysStringIn(mes string, year int) int {
 	m, _ := strconv.Atoi(mes)
 	return time.Date(year, time.Month(m+1), 0, 0, 0, 0, 0, time.UTC).Day()
 }
+
 // años por arriba y por abajo del actual
 func UpDownYears(year int) []int {
 	var array []int
@@ -407,6 +412,7 @@ func UpDownYears(year int) []int {
 	}
 	return array
 }
+
 //funcion que va a colocar las datos monthly en sus correspondientes dias
 func grafDaysFloat(hora map[int]float64, day int) []float64 {
 	x := make([]float64, day)
@@ -419,6 +425,7 @@ func grafDaysFloat(hora map[int]float64, day int) []float64 {
 	}
 	return x
 }
+
 //funcion que va a colocar las datos monthly en sus correspondientes dias
 func grafDays(hora map[int]int, day int) []int {
 	x := make([]int, day)

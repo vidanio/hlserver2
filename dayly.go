@@ -54,9 +54,9 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 		arrTime, arrSess, timePais, sesionPais, sesHour []int
 	)
 	var horaSes map[int]int = make(map[int]int)
-	anio, mes, dia := time.Now().Date()                   //Fecha actual
-	colores := []string{"#F9183A", "#F918E6", "#4118F9", "#18DBF9", "#18F9D3", "#18F950", "#C4F918", "#EEF918", "#F9C118", "#0E0B01"}  //Colores para graficos1 Paises
-	colores2 := []string{"#f4e60c", "#36A2EB", "#5f6960", "#00ff17", "#f40c33" } //Colores para graficos2 OS
+	anio, mes, dia := time.Now().Date()                                                                                               //Fecha actual
+	colores := []string{"#F9183A", "#F918E6", "#4118F9", "#18DBF9", "#18F9D3", "#18F950", "#C4F918", "#EEF918", "#F9C118", "#0E0B01"} //Colores para graficos1 Paises
+	colores2 := []string{"#f4e60c", "#36A2EB", "#5f6960", "#00ff17", "#f40c33"}                                                       //Colores para graficos2 OS
 	//Fecha actual
 	fecha_actual := fmt.Sprintf("%02d-%02d-%02d", anio, mes, dia) // Fecha actual
 	fecha_ESP := fmt.Sprintf("%02d/%02d/%02d", dia, mes, anio)    // Fecha a mostrar en el html
@@ -163,8 +163,8 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 		arrTime, arrSess, timePais, sesionPais, sesHour []int
 	)
 	var horaSes map[int]int = make(map[int]int)
-	colores := []string{"#F9183A", "#F918E6", "#4118F9", "#18DBF9", "#18F9D3", "#18F950", "#C4F918", "#EEF918", "#F9C118", "#0E0B01"}  //Colores para graficos1 Paises
-	colores2 := []string{"#FFCE56", "#36A2EB", "#FF6384", "#00ff17" } //Colores para graficos2 OS
+	colores := []string{"#F9183A", "#F918E6", "#4118F9", "#18DBF9", "#18F9D3", "#18F950", "#C4F918", "#EEF918", "#F9C118", "#0E0B01"} //Colores para graficos1 Paises
+	colores2 := []string{"#FFCE56", "#36A2EB", "#FF6384", "#00ff17"}                                                                  //Colores para graficos2 OS
 	//Fecha obtenida del select de dayly.html
 	fechaHTML := strings.Split(r.FormValue("fecha"), "/")
 	fechaSQL := fmt.Sprintf("%s-%s-%s", fechaHTML[2], fechaHTML[1], fechaHTML[0]) // Formato SQLite
