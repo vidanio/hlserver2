@@ -67,7 +67,7 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 	}
 	//Generamos el select de streams
 	dbmon_mu.RLock()
-	query2, err := db0.Query("SELECT streamname FROM resumen WHERE username = ?", username)
+	query2, err := db0.Query("SELECT  DISTINCT(streamname) FROM resumen WHERE username = ?", username)
 	dbmon_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
@@ -79,7 +79,7 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 		//Si, existen campos. Formamos el select
 		menu3 = "<option label='todo' value='todo' selected>Todo</option>"
 		dbmon_mu.RLock()
-		query3, err := db0.Query("SELECT streamname FROM resumen WHERE username = ?", username)
+		query3, err := db0.Query("SELECT  DISTINCT(streamname) FROM resumen WHERE username = ?", username)
 		dbmon_mu.RUnlock()
 		if err != nil {
 			Error.Println(err)
@@ -173,7 +173,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 			}
 			//Generamos el select de streams
 			dbmon_mu.RLock()
-			query2, err := db0.Query("SELECT streamname FROM resumen WHERE username = ?", username)
+			query2, err := db0.Query("SELECT  DISTINCT(streamname) FROM resumen WHERE username = ?", username)
 			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
@@ -185,7 +185,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				//Si, existen campos. Formamos el select
 				menu3 = "<option label='todo' value='todo' selected>Todo</option>"
 				dbmon_mu.RLock()
-				query3, err := db0.Query("SELECT streamname FROM resumen WHERE username = ?", username)
+				query3, err := db0.Query("SELECT  DISTINCT(streamname) FROM resumen WHERE username = ?", username)
 				dbmon_mu.RUnlock()
 				if err != nil {
 					Warning.Println(err)
@@ -247,7 +247,7 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			dbmon_mu.RLock()
-			query2, err := db0.Query("SELECT streamname FROM resumen WHERE username = ?", username)
+			query2, err := db0.Query("SELECT  DISTINCT(streamname) FROM resumen WHERE username = ?", username)
 			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
