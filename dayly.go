@@ -26,6 +26,16 @@ func giveFecha(w http.ResponseWriter, r *http.Request) {
 
 func zeroFields(w http.ResponseWriter, r *http.Request) {
 	var existe int
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	anio, mes, dia := time.Now().Date()                           //Fecha actual
 	fecha_actual := fmt.Sprintf("%02d-%02d-%02d", anio, mes, dia) // Fecha actual
 	// La primera vez que se entra a la web, se abre el fichero de dayly.db actual
@@ -48,6 +58,16 @@ func zeroFields(w http.ResponseWriter, r *http.Request) {
 }
 
 func firstFecha(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	r.ParseForm()
 	var (
 		arrSo, arrIso, paisSes                          []string
@@ -157,6 +177,16 @@ func formatDaylyhtml(w http.ResponseWriter, r *http.Request) {
 }
 
 func consultaFecha(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	var (
 		arrSo, arrIso, paisSes                          []string

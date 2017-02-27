@@ -10,6 +10,17 @@ import (
 var cloud map[string]string = make(map[string]string)
 
 func encoderStatNow(w http.ResponseWriter, r *http.Request) {
+
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	anio, mes, dia := time.Now().Date()
 	fecha := fmt.Sprintf("%02d/%02d/%02d", dia, mes, anio)
 	hh, mm, _ := time.Now().Clock()
@@ -40,6 +51,16 @@ func encoderStatNow(w http.ResponseWriter, r *http.Request) {
 }
 
 func playerStatNow(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	var contador int
 	tiempo_limite := time.Now().Unix() - 30 //tiempo limite de 30 seg
 	db_mu.RLock()
@@ -94,6 +115,16 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 }
 
 func play(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	loadSettings(playingsRoot)
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	allname := username + "-" + r.FormValue("stream")

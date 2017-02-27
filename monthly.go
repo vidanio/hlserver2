@@ -51,6 +51,16 @@ func getMonthsYears(w http.ResponseWriter, r *http.Request) {
 }
 
 func firstMonthly(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	var fechaAud []int
 	var menu3 string
 	var arrAud map[int]int = make(map[int]int)
@@ -141,6 +151,16 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 }
 
 func graficosMonthly(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	var (
 		arrNull, fechaAud []int
@@ -314,6 +334,16 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 
 // Funcion que muestra el total de horas y gigas consumidos (por primera vez)
 func totalMonths(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	var minutos, megas int
 	anio, mes, _ := time.Now().Date() //Fecha actual
 	mesGrafico := fmt.Sprintf("%d-%02d", anio, mes)
@@ -341,6 +371,16 @@ func totalMonths(w http.ResponseWriter, r *http.Request) {
 
 // Funcion que muestra el total de horas y gigas consumidos (con cambio de mes)
 func totalMonthsChange(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	r.ParseForm()
 	var minutos, megas int
 	mesGrafico := r.FormValue("years") + "-" + r.FormValue("months")

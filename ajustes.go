@@ -7,11 +7,31 @@ import (
 
 //Función que muestra el usuario en activo
 func user_admin(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	fmt.Fprintf(w, "<input class='form-control' placeholder='Usuario' readonly='readonly' name='username' type='username' value='%s' autofocus>", username)
 }
 
 //Funcion para editar los datos del admin
 func editar_admin(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	//Solo si las contraseñas son iguales modificamos
 	if r.FormValue("password") == r.FormValue("repeat-password") {
@@ -31,6 +51,16 @@ func editar_admin(w http.ResponseWriter, r *http.Request) {
 
 //Funcion para editar los datos del admin
 func editar_cliente(w http.ResponseWriter, r *http.Request) {
+	cookie, err3 := r.Cookie(CookieName)
+	if err3 != nil {
+		return
+	}
+	key := cookie.Value
+	usr, ok := user[key] // De aquí podemos recoger el usuario
+	if !ok {
+		return
+	}
+	username := usr
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	//Solo si las contraseñas son iguales modificamos
 	if r.FormValue("password") == r.FormValue("repeat-password") {
