@@ -53,66 +53,67 @@
     <!-- Custom Theme JavaScript -->
     <script src="js/sb-admin-2.js"></script>
 </head>
- <body>
+<body>
 <div id="wrapper">
     <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-    <div class="navbar-header">
-        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Cambiar Navegacion</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="http://www.streamrus.com">Nulldrops</a>
-    </div>
-    <ul class="nav navbar-top-links navbar-right hidden-xs">
-        <!-- Boton superior de logout -->
-        <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                <i class="fa fa-user fa-fw"></i><i class="fa fa-caret-down"></i>
-            </a>
-            <ul class="dropdown-menu dropdown-user">
-                <li><a href="edit.html"><i class="fa fa-gear fa-fw"></i> Ajustes</a></li>
-                <li><a href="ahora.html"><i class="fa fa-bar-chart fa-fw"></i> Ahora</a></li>
-                <li><a href="dayly.html"><i class="fa fa-pie-chart fa-fw"></i> Diario</a></li>
-                <li><a href="mensual.html"><i class="fa fa-area-chart fa-fw"></i> Mensual</a></li>
-                <li class="divider"></li>
-                <li><a href="/logout.cgi"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
-                </li>
-            </ul>
-        </li>
-    </ul>
-    <div class="navbar-default sidebar" role="navigation">
-        <div class="sidebar-nav navbar-collapse">
-            <ul class="nav" id="side-menu">
-                <li>
-                    <a href="#"><i class="fa fa-bar-chart fa-fw"></i> Estadísticas<span class="fa arrow"></span></a>
-                    <ul class="nav nav-second-level">
-                        <li>
-                            <a href="ahora.html">Ahora</a>
-                        </li>
-                        <li>
-                            <a href="dayly.html">Diario</a>
-                        </li>
-                        <li>
-                            <a href="mensual.html">Mensual</a>
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                  <a href="edit.html"><i class="fa fa-gear fa-fw"></i> Ajustes</a>
-                </li>
-                <li>
-                    <a href="/logout.cgi"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
-                </li>
-            </ul>
-         </div>
-    </div>
-</nav>
- <div id="page-wrapper">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Cambiar Navegacion</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://www.streamrus.com">Nulldrops</a>
+        </div>
+        <ul class="nav navbar-top-links navbar-right hidden-xs">
+            <!-- Boton superior de logout -->
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="fa fa-user fa-fw"></i><i class="fa fa-caret-down"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-user">
+                    <li><a href="edit.html"><i class="fa fa-gear fa-fw"></i> Ajustes</a></li>
+                    <li><a href="ahora.html"><i class="fa fa-bar-chart fa-fw"></i> Ahora</a></li>
+                    <li><a href="dayly.html"><i class="fa fa-pie-chart fa-fw"></i> Diario</a></li>
+                    <li><a href="mensual.html"><i class="fa fa-area-chart fa-fw"></i> Mensual</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/logout.cgi"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <div class="navbar-default sidebar" role="navigation">
+            <div class="sidebar-nav navbar-collapse">
+                <ul class="nav" id="side-menu">
+                    <li>
+                        <a href="#"><i class="fa fa-bar-chart fa-fw"></i> Estadísticas<span class="fa arrow"></span></a>
+                        <ul class="nav nav-second-level">
+                            <li>
+                                <a href="ahora.html">Ahora</a>
+                            </li>
+                            <li>
+                                <a href="dayly.html">Diario</a>
+                            </li>
+                            <li>
+                                <a href="mensual.html">Mensual</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>
+                      <a href="edit.html"><i class="fa fa-gear fa-fw"></i> Ajustes</a>
+                    </li>
+                    <li>
+                        <a href="/logout.cgi"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
+                    </li>
+                </ul>
+             </div>
+        </div>
+    </nav>
+</div>
+<div id="page-wrapper">
      <br>
      <div class="row">
-        <div class="col-xs-5 col-xs-offset-4">
+        <div class="col-xs-3 col-xs-offset-6">
             <div class="panel panel-default">
                 <div class="panel-body">
                     <form id="testform" action="" method="post">
@@ -135,7 +136,7 @@
             </div>
         </div>
      <div class="row">
-     	<div class="col-xs-4 col-xs-offset-4">
+     	<div class="col-xs-3 col-xs-offset-6">
           <div class="panel panel-default">
               <div class="panel-body">
 		   <table id="totalMonth">
@@ -232,7 +233,6 @@
             <div id="prueba"></div>
          </div>
      </div>
-</div>
 </div>
     <script type="text/javascript">
         $(document).ready(function(){
