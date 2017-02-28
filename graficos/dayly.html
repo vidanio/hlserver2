@@ -110,127 +110,127 @@
          </div>
      </div>
     </nav>
-    <div id="page-wrapper">
-        	<br><div class="row">
-                <div class="col-xs-5 col-xs-offset-3">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                        <form id="testform" action="">
-                            <fieldset>
-                            <div align="center" class="panel-body">
-                                Fecha: <input id="popup_container" type="text" class="sign-up-input" name="fecha">
-                            </div>
-                            </fieldset>
-                        </form>
-                        <button id="consulta" class="btn btn-lg btn-success btn-block" name="consulta">Consultar</button>
+</div>
+<div id="page-wrapper">
+        <br><div class="row">
+            <div class="col-xs-5 col-xs-offset-3">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                    <form id="testform" action="">
+                        <fieldset>
+                        <div align="center" class="panel-body">
+                            Fecha: <input id="popup_container" type="text" class="sign-up-input" name="fecha">
                         </div>
-                        <!-- /.panel-body -->
+                        </fieldset>
+                    </form>
+                    <button id="consulta" class="btn btn-lg btn-success btn-block" name="consulta">Consultar</button>
                     </div>
-                    <!-- /.panel -->
+                    <!-- /.panel-body -->
                 </div>
-                <!-- /.col-lg-12 -->
+                <!-- /.panel -->
             </div>
-            <div id="zonaGraficos" class="row">
-                <div class="col-lg-12">
-                    <div class="panel panel-default">
-                        <!-- /.panel-heading -->
-                        <div id="firstTime" class="panel-body">
-                            <div class="dataTable_wrapper">
-                                <table align="center">
-                                	<tr>
-	                                    <th><div id="fechaActual" align="center"></div></th>
-                                    </tr>
-                                    <tr>
-                                    <td align="center">
-                                        <div align="center" style="width:75%;">
-                                            <h3>Sesiones por Franja Horaria</h3>
-                                            <canvas id="sessHour"></canvas>
+            <!-- /.col-lg-12 -->
+        </div>
+        <div id="zonaGraficos" class="row">
+            <div class="col-lg-12">
+                <div class="panel panel-default">
+                    <!-- /.panel-heading -->
+                    <div id="firstTime" class="panel-body">
+                        <div class="dataTable_wrapper">
+                            <table align="center">
+                                <tr>
+                                    <th><div id="fechaActual" align="center"></div></th>
+                                </tr>
+                                <tr>
+                                <td align="center">
+                                    <div align="center" style="width:75%;">
+                                        <h3>Sesiones por Franja Horaria</h3>
+                                        <canvas id="sessHour"></canvas>
+                                    </div>
+                                </td>
+                                </tr>
+                                <tr>
+                                <td>
+                                    <div align="center">
+                                        <h3>Plataformas Usadas</h3>
+                                        <div style="width:50%; float:left;">
+                                            <label>Sesiones por Sistema Operativo</label>
+                                            <canvas id="sesSo"></canvas>
                                         </div>
-                                    </td>
-                                    </tr>
-                                    <tr>
-                                    <td>
-                                        <div align="center">
-                                            <h3>Plataformas Usadas</h3>
-                                            <div style="width:50%; float:left;">
-                                                <label>Sesiones por Sistema Operativo</label>
-                                                <canvas id="sesSo"></canvas>
-                                            </div>
-                                            <div style="width:50%; float:right;">
-                                                <label>Segundos consumidos por Sistema Operativo</label>
-                                                <canvas id="timeSo"></canvas>
-                                            </div>
+                                        <div style="width:50%; float:right;">
+                                            <label>Segundos consumidos por Sistema Operativo</label>
+                                            <canvas id="timeSo"></canvas>
                                         </div>
-                                    </td>
-                                    </tr>
-                                    <tr>
-                                    <td>
-                                        <div align="center">
-                                            <h3>Datos de paises</h3>
-                                            <div style="width:50%; float:left;">
-                                                <label>Tiempo consumido(en Sec) por País</label>
-                                                <canvas id="timeIso"></canvas>
-                                            </div>
-                                            <div style="width:50%; float:right;">
-                                                <label>Sesiones por País</label>
-                                                <canvas id="sessIso"></canvas>
-                                            </div>
+                                    </div>
+                                </td>
+                                </tr>
+                                <tr>
+                                <td>
+                                    <div align="center">
+                                        <h3>Datos de paises</h3>
+                                        <div style="width:50%; float:left;">
+                                            <label>Tiempo consumido(en Sec) por País</label>
+                                            <canvas id="timeIso"></canvas>
                                         </div>
-                                    </td>
-                                    </tr>
-                                </table>
-                            </div>
+                                        <div style="width:50%; float:right;">
+                                            <label>Sesiones por País</label>
+                                            <canvas id="sessIso"></canvas>
+                                        </div>
+                                    </div>
+                                </td>
+                                </tr>
+                            </table>
                         </div>
-                        <div class="panel-body">
-                            <div class='dataTable_wrapper'>
-                                <table align='center'>
-                                	<tr>
-	                                    <th>
-	                                        <div id='fechaSelect' align='center'></div>
-	                                    </th>
-                                    </tr>
-                                    <tr>
-                                        <td align=center>
-                                            <div align='center' style='width:75%;'>
-                                                <div id="canv1"></div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div align='center'>
-                                                <div id="title"></div>
-                                                <div style='width:50%; float:left;'>
-                                                    <div id="canv2"></div>
-                                                </div>
-                                                <div style='width:50%; float:right;'>
-                                                    <div id="canv3"></div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div align='center'>
-                                                <div id="title2"></div>
-                                                <div style='width:50%; float:left;'>
-                                                    <div id="canv4"></div>
-                                                </div>
-                                                <div style='width:50%; float:right;'>
-                                                    <div id="canv5"></div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <!-- /.panel-body -->
                     </div>
-                    <!-- /.panel -->
+                    <div class="panel-body">
+                        <div class='dataTable_wrapper'>
+                            <table align='center'>
+                                <tr>
+                                    <th>
+                                        <div id='fechaSelect' align='center'></div>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td align=center>
+                                        <div align='center' style='width:75%;'>
+                                            <div id="canv1"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div align='center'>
+                                            <div id="title"></div>
+                                            <div style='width:50%; float:left;'>
+                                                <div id="canv2"></div>
+                                            </div>
+                                            <div style='width:50%; float:right;'>
+                                                <div id="canv3"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div align='center'>
+                                            <div id="title2"></div>
+                                            <div style='width:50%; float:left;'>
+                                                <div id="canv4"></div>
+                                            </div>
+                                            <div style='width:50%; float:right;'>
+                                                <div id="canv5"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- /.panel-body -->
                 </div>
-                <!-- /.col-lg-12 -->
+                <!-- /.panel -->
             </div>
+            <!-- /.col-lg-12 -->
         </div>
     </div>
 <script type="text/javascript">
