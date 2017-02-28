@@ -87,7 +87,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 		Error.Println(err)
 	}
 	dbday_mu.RLock()
-	query, err := db_now.Query("SELECT time, os, count FROM resumen WHERE username = ? GROUP BY username, streamname, os", username)
+	query, err := db_now.Query("SELECT time, os, sum(count) FROM resumen WHERE username = ? GROUP BY username, os", username)
 	dbday_mu.RUnlock()
 	if err != nil {
 		Warning.Println(err)
@@ -105,7 +105,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 	}
 	query.Close()
 	dbday_mu.RLock()
-	query2, err := db_now.Query("SELECT sum(time), isocode FROM resumen WHERE username = ? AND time IN (SELECT time FROM resumen GROUP BY username, streamname, isocode, os) GROUP BY isocode", username)
+	query2, err := db_now.Query("SELECT sum(time), isocode FROM resumen WHERE username = ? AND time IN (SELECT time FROM resumen GROUP BY username, isocode, os) GROUP BY isocode", username)
 	dbday_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
@@ -122,7 +122,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 	}
 	query2.Close()
 	dbday_mu.RLock()
-	query3, err := db_now.Query("SELECT sum(count), isocode FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, streamname, isocode , os HAVING count = max(count))  GROUP BY isocode ", username)
+	query3, err := db_now.Query("SELECT sum(count), isocode FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, isocode , os HAVING count = max(count))  GROUP BY isocode ", username)
 	dbday_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
@@ -139,7 +139,7 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 	}
 	query3.Close()
 	dbday_mu.RLock()
-	query4, err := db_now.Query("SELECT sum(count), hour FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, streamname, isocode, hour, os HAVING count = max(count))  GROUP BY hour ORDER BY hour ASC", username)
+	query4, err := db_now.Query("SELECT sum(count), hour FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, isocode, hour, os HAVING count = max(count))  GROUP BY hour ORDER BY hour ASC", username)
 	dbday_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
@@ -220,7 +220,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "NoBD")
 		} else {
 			dbday_mu.RLock()
-			query, err := db_fecha.Query("SELECT time, os, count FROM resumen WHERE username = ? GROUP BY username, streamname, os", username)
+			query, err := db_fecha.Query("SELECT time, os, sum(count) FROM resumen WHERE username = ? GROUP BY username, os", username)
 			dbday_mu.RUnlock()
 			if err != nil {
 				Warning.Println(err)
@@ -238,7 +238,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 			}
 			query.Close()
 			dbday_mu.RLock()
-			query2, err := db_fecha.Query("SELECT sum(time), isocode FROM resumen WHERE username = ? AND time IN (SELECT time FROM resumen GROUP BY username, streamname, isocode, os) GROUP BY isocode", username)
+			query2, err := db_fecha.Query("SELECT sum(time), isocode FROM resumen WHERE username = ? AND time IN (SELECT time FROM resumen GROUP BY username, isocode, os) GROUP BY isocode", username)
 			dbday_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
@@ -255,7 +255,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 			}
 			query2.Close()
 			dbday_mu.RLock()
-			query3, err := db_fecha.Query("SELECT sum(count), isocode FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, streamname, isocode , os HAVING count = max(count))  GROUP BY isocode", username)
+			query3, err := db_fecha.Query("SELECT sum(count), isocode FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, isocode , os HAVING count = max(count))  GROUP BY isocode", username)
 			dbday_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
@@ -272,7 +272,7 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 			}
 			query3.Close()
 			dbday_mu.RLock()
-			query4, err := db_fecha.Query("SELECT sum(count), hour FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, streamname, isocode, hour, os HAVING count = max(count))  GROUP BY hour ORDER BY hour ASC", username)
+			query4, err := db_fecha.Query("SELECT sum(count), hour FROM resumen WHERE username = ? AND id IN(SELECT id FROM resumen GROUP BY username, isocode, hour, os HAVING count = max(count))  GROUP BY hour ORDER BY hour ASC", username)
 			dbday_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
