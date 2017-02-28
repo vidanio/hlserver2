@@ -47,9 +47,34 @@
 </head>
  <body>
 <div id="wrapper">
-<!-- PANEL DE NAVEGACION -->
-    <a class="navbar-brand text-success" href="http://www.streamrus.com">Nulldrops</a>
-    <nav class="navbar navbar-default sidebar" role="navigation" style="margin-bottom: 0">
+    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Cambiar Navegacion</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://www.streamrus.com">Nulldrops</a>
+    </div>
+    <ul class="nav navbar-top-links navbar-right hidden-xs">
+        <!-- Boton superior de logout -->
+        <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                <i class="fa fa-user fa-fw"></i><i class="fa fa-caret-down"></i>
+            </a>
+            <ul class="dropdown-menu dropdown-user">
+                <li><a href="editarAdmin.html"><i class="fa fa-gear fa-fw"></i> Ajustes</a></li>
+                <li><a href="new_client.html"><i class="fa fa-file-o fa-fw"></i> Nuevo Cliente</a></li>
+                <li><a href="del_client.html"><i class="fa fa-eraser fa-fw"></i> Borrar Cliente</a></li>
+                <li><a href="monthly_admin.html"><i class="fa fa-bar-chart fa-fw"></i> Estadísticas</a></li>
+                <li class="divider"></li>
+                <li><a href="/logout.cgi"><i class="fa fa-sign-out fa-fw"></i> Desconectar</a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <div class="navbar-default sidebar" role="navigation">
         <div class="sidebar-nav navbar-collapse">
             <ul class="nav" id="side-menu">
             	<li>
@@ -74,45 +99,46 @@
                 </li>
             </ul>
         </div>
+    </div>
     </nav>
-</div>
- <div id="page-wrapper">
-     <br>
-     <div class="row">
-        <div class="col-xs-4 col-xs-offset-4">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <form id="testform" action="" method="post">
-						<fieldset>
-                            <div class="panel-body">
-                            	<input id="nom_cli" class="form-control" placeholder="Nombre del cliente" required name="nom_cli" type="text" value="" autofocus>
-                            </div>
-                            <div class="panel-body">
-                              	<input id="passw" class="form-control" placeholder="Contraseña" required name="passw" type="text" value="" autofocus>
-                            </div>
-                            <div class="panel-body">
-                              	Tipo: 
-								<select id="type" class="pull-right" name="type">
-									<option value="0" selected>Cliente</option>
-									<option value="1">Administrador</option>
-								</select>
-                            </div>
-                            <div class="panel-body">
-                              	Estado: 
-								<select id="status" class="pull-right" name="status">
-									<option value="0">OFF</option>
-									<option value="1" selected>ON</option>
-								</select>
-                            </div>
-						</fieldset>
-                    </form>
-                    <br>
-                    <button id="enviar" class="btn btn-lg btn-success btn-block" name="enviar">Enviar</button>
+     <div id="page-wrapper">
+         <br>
+         <div class="row">
+            <div class="col-xs-4 col-xs-offset-4">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <form id="testform" action="" method="post">
+                            <fieldset>
+                                <div class="panel-body">
+                                    <input id="nom_cli" class="form-control" placeholder="Nombre del cliente" required name="nom_cli" type="text" value="" autofocus>
+                                </div>
+                                <div class="panel-body">
+                                    <input id="passw" class="form-control" placeholder="Contraseña" required name="passw" type="text" value="" autofocus>
+                                </div>
+                                <div class="panel-body">
+                                    Tipo: 
+                                    <select id="type" class="pull-right" name="type">
+                                        <option value="0" selected>Cliente</option>
+                                        <option value="1">Administrador</option>
+                                    </select>
+                                </div>
+                                <div class="panel-body">
+                                    Estado: 
+                                    <select id="status" class="pull-right" name="status">
+                                        <option value="0">OFF</option>
+                                        <option value="1" selected>ON</option>
+                                    </select>
+                                </div>
+                            </fieldset>
+                        </form>
+                        <br>
+                        <button id="enviar" class="btn btn-lg btn-success btn-block" name="enviar">Enviar</button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-     <h4 align="center" id="msg"></h4>
+         <h4 align="center" id="msg"></h4>
+    </div>
 </div>
     <script type="text/javascript">
     $(document).ready(function(){
