@@ -272,7 +272,7 @@ func mantenimiento() {
 				if err != nil {
 					Error.Println(err)
 				}
-				db2, err := sql.Open("sqlite3", dirMonthlys+mes_actual+"monthly.db") // Apertura de mes actual + Monthly.db para escritura del resumen del pasado dia
+				db2, err := sql.Open("sqlite3", dirMonthlys+mes_antiguo+"monthly.db") // Apertura de mes actual + Monthly.db para escritura del resumen del pasado dia
 				if err != nil {
 					Error.Println(err)
 				}
