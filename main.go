@@ -142,7 +142,18 @@ func gethardware(w http.ResponseWriter, r *http.Request) {
 	if st.TotalMem > 0 {
 		fmt.Printf("CPU used: %2d%%  RAM used: %2d%%  Rx: %d Kbps   Tx: %d Kbps \n", int(st.CPUusage), 100*st.UsedMem/st.TotalMem, st.RXbps/1000, st.TXbps/1000)
 	}
-	fmt.Fprintf(w, "Respondo con todos los datos del hardware que tengo")
+	/*
+		Quiero en la página una tabla con todos los datos expuestos y recargados automaticamente cada 10 segundos así:
+
+		"CPU: %s (%d cores)", st.CPUName, st.CPUCores
+		"RAM: %d MB\n", st.TotalMem/1024/1000
+		"CPU used: %d%%", int(st.CPUusage)
+		"RAM used: %2d%%", 100*st.UsedMem/st.TotalMem   (importante revisar que st.TotalMem > 0, o puede dar un panic por dividir por cero)
+		"Upload: %d Mbps", st.RXbps/1000000
+		"Download: %d Mbps", st.TXbps/1000000
+	*/
+
+	fmt.Fprintf(w, "Respondo con todos los datos del hardware que tengo para la tabla")
 }
 
 func hardware() {
