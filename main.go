@@ -70,7 +70,8 @@ func main() {
 	if session { // will delete expired sessions previously recorded
 		go controlinternalsessions()
 	}
-	go hardware()
+	Hardw = gohw.Hardware()
+	Hardw.Run("eth0")
 	go func() {
 		for {
 			if procsrunning("nginx") == 0 {
@@ -154,13 +155,6 @@ func gethardware(w http.ResponseWriter, r *http.Request) {
 	*/
 
 	fmt.Fprintf(w, "Respondo con todos los datos del hardware que tengo para la tabla")
-}
-
-func hardware() {
-	for {
-		Hardw = gohw.Hardware()
-		Hardw.Run("eth0")
-	}
 }
 
 func encoder() {
