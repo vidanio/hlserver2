@@ -7,6 +7,7 @@ import (
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/todostreaming/geoip2-golang"
+	"github.com/todostreaming/gohw"
 	"github.com/todostreaming/syncmap"
 	"io"
 	"io/ioutil"
@@ -30,6 +31,7 @@ var (
 	Warning  *log.Logger
 	Error    *log.Logger
 	Bw_int   *syncmap.SyncMap
+	Hardw    *gohw.GoHw
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -68,6 +70,7 @@ func main() {
 	if session { // will delete expired sessions previously recorded
 		go controlinternalsessions()
 	}
+	go hardware()
 	go func() {
 		for {
 			if procsrunning("nginx") == 0 {
@@ -126,8 +129,27 @@ func main() {
 	http.HandleFunc("/buscarClientes.cgi", buscarClientes)
 	http.HandleFunc("/totalMonths.cgi", totalMonths)
 	http.HandleFunc("/totalMonthsChange.cgi", totalMonthsChange)
+	http.HandleFunc("/hardware.cgi", gethardware)
 
 	log.Fatal(s.ListenAndServe()) // Servidor HTTP multihilo
+}
+
+func gethardware(w http.ResponseWriter, r *http.Request) {
+	st := Hardw.Status()
+
+	fmt.Printf("CPU: %s (%d cores)\n", st.CPUName, st.CPUCores)
+	fmt.Printf("RAM: %d MB\n", st.TotalMem/1024/1000)
+	if st.TotalMem > 0 {
+		fmt.Printf("CPU used: %2d%%  RAM used: %2d%%  Rx: %d Kbps   Tx: %d Kbps \n", int(st.CPUusage), 100*st.UsedMem/st.TotalMem, st.RXbps/1000, st.TXbps/1000)
+	}
+	fmt.Fprintf(w, "Respondo con todos los datos del hardware que tengo")
+}
+
+func hardware() {
+	for {
+		Hardw = gohw.Hardware()
+		Hardw.Run("eth0")
+	}
 }
 
 func encoder() {
