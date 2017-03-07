@@ -70,6 +70,7 @@ func main() {
 	if session { // will delete expired sessions previously recorded
 		go controlinternalsessions()
 	}
+	loadSettings(playingsRoot)
 	Hardw = gohw.Hardware()
 	Hardw.Run("eth0")
 	go func() {
@@ -179,7 +180,7 @@ func encoder() {
 		type Result struct {
 			Stream []Stream `xml:"server>application>live>stream"`
 		}
-		resp, err := http.Get("http://panel.cdnstreamserver.com:8080/stats")
+		resp, err := http.Get("http://" + cloud["cloudserver"] + ":8080/stats")
 		if err != nil {
 			Warning.Println(err)
 			time.Sleep(3 * time.Second)
