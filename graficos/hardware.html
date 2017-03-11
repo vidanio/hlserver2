@@ -166,7 +166,7 @@
             setInterval("delayedPost()", 10000);
         });
         function delayedPost() {
-            $.post("/gethardware.cgi", function(data, status) {
+            $.post("/hardware.cgi", function(data, status) {
                 var res = data.split(";");
                 $("#cpu").html(res[0]);
                 $("#ram").html(res[1]);
