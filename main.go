@@ -186,7 +186,7 @@ func encoder() {
 		type Result struct {
 			Stream []Stream `xml:"server>application>live>stream"`
 		}
-		resp, err := http.Get("http://" + cloud["cloudserver"] + ":8080/stats")
+		resp, err := http.Get("http://127.0.0.1:8080/stats")
 		if err != nil {
 			Warning.Println(err)
 			time.Sleep(3 * time.Second)
