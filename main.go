@@ -64,7 +64,7 @@ func init() {
 		exec.Command("/bin/sh", "-c", fmt.Sprintf("cp -f %sGeoIP2-City.mmdb* %s", DirDB, DirRamDB)).Run()
 		exec.Command("/bin/sh", "-c", "sync").Run()
 	}
-	dbgeoip, err = geoip2.Open("/var/segments/GeoIP2-City.mmdb")
+	dbgeoip, err = geoip2.Open(DirRamDB + "GeoIP2-City.mmdb")
 	if err != nil {
 		log.Fatal("Fallo al abrir el GeoIP2:", err)
 	}
