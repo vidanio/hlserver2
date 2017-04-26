@@ -41,7 +41,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
-	hh, mm, ss := time.Now().Clock()
+	//hh, mm, ss := time.Now().Clock()
 	defer fr.Close()
 	if strings.Contains(namefile, ".m3u8") {
 		w.Header().Set("Cache-Control", "no-cache")
@@ -54,9 +54,9 @@ func root(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileinfo.Size()))
 		w.Header().Set("Accept-Ranges", "bytes")
 		query, _ := url.ParseQuery(r.URL.RawQuery)
-		go createStats(namefile, r.Header.Get("User-Agent"), realip.RealIP(r), getip(r.RemoteAddr), query.Get("city"))
+		createStats(namefile, r.Header.Get("User-Agent"), realip.RealIP(r), getip(r.RemoteAddr), query.Get("city"))
 		io.Copy(w, fr)
-		fmt.Printf("%s TIEMPO: [%02d:%02d:%02d]\n", namefile, hh, mm, ss)
+		//fmt.Printf("%s TIEMPO: [%02d:%02d:%02d]\n", namefile, hh, mm, ss)
 		return
 	} else if strings.Contains(namefile, ".ts") {
 		w.Header().Set("Cache-Control", "max-age=300")
@@ -69,7 +69,7 @@ func root(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileinfo.Size()))
 		w.Header().Set("Accept-Ranges", "bytes")
 		io.Copy(w, fr)
-		fmt.Printf("%s TIEMPO: [%02d:%02d:%02d]\n", namefile, hh, mm, ss)
+		//fmt.Printf("%s TIEMPO: [%02d:%02d:%02d]\n", namefile, hh, mm, ss)
 		return
 	}
 	if session {
@@ -162,9 +162,9 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 		ipcliente = forwarded
 		ipproxy = remoteip
 	}
-	db_mu.RLock()
+	db_mu.Lock()
 	query, err := db.Query("SELECT timestamp, time, kilobytes, total_time FROM players WHERE username = ? AND streamname = ? AND ipclient= ? AND os = ?", user, streamname, ipcliente, so)
-	db_mu.RUnlock()
+	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
 	}

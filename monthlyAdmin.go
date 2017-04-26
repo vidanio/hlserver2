@@ -44,9 +44,9 @@ func putMonthlyAdmin(w http.ResponseWriter, r *http.Request) {
 		Error.Println(err)
 	}
 	defer db0.Close()
-	db_mu.RLock()
+	db_mu.Lock()
 	query2, err := db.Query("SELECT id, username, password, status FROM admin WHERE type = 0")
-	db_mu.RUnlock()
+	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
 	}
@@ -59,9 +59,9 @@ func putMonthlyAdmin(w http.ResponseWriter, r *http.Request) {
 		} else {
 			estado = "OFF"
 		}
-		dbmon_mu.RLock()
+		dbmon_mu.Lock()
 		query, err := db0.Query("SELECT sum(minutos), sum(megabytes) FROM resumen WHERE username = ? GROUP BY username", user)
-		dbmon_mu.RUnlock()
+		dbmon_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
 		}
@@ -95,9 +95,9 @@ func putMonthlyAdminChange(w http.ResponseWriter, r *http.Request) {
 			Error.Println(err)
 		}
 		defer db0.Close()
-		db_mu.RLock()
+		db_mu.Lock()
 		query2, err := db.Query("SELECT id, username, password, status FROM admin WHERE type = 0")
-		db_mu.RUnlock()
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
 		}
@@ -110,9 +110,9 @@ func putMonthlyAdminChange(w http.ResponseWriter, r *http.Request) {
 			} else {
 				estado = "OFF"
 			}
-			dbmon_mu.RLock()
+			dbmon_mu.Lock()
 			query, err := db0.Query("SELECT sum(minutos), sum(megabytes) FROM resumen WHERE username = ? GROUP BY username", user)
-			dbmon_mu.RUnlock()
+			dbmon_mu.Unlock()
 			if err != nil {
 				Error.Println(err)
 			}
@@ -135,9 +135,9 @@ func changeStatus(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	var id, status int
 	var user string
-	db_mu.RLock()
+	db_mu.Lock()
 	query2, err := db.Query("SELECT id, username, status FROM admin WHERE id = ?", r.FormValue("load"))
-	db_mu.RUnlock()
+	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
 	}
@@ -154,9 +154,9 @@ func changeStatus(w http.ResponseWriter, r *http.Request) {
 		}
 		time.Sleep(10 * time.Millisecond)
 		// Seleccionamos todos los streams pertenecientes a un usuario, para hecharlos fuera
-		db_mu.RLock()
+		db_mu.Lock()
 		query3, err := db.Query("SELECT streamname FROM encoders WHERE username = ?", user)
-		db_mu.RUnlock()
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
 		}
@@ -196,9 +196,9 @@ func nuevoCliente(w http.ResponseWriter, r *http.Request) {
 func buscarClientes(w http.ResponseWriter, r *http.Request) {
 	var id int
 	var nombre, selector string
-	db_mu.RLock()
+	db_mu.Lock()
 	query, err := db.Query("SELECT id, username FROM admin WHERE type = 0")
-	db_mu.RUnlock()
+	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
 	}

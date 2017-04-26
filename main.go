@@ -23,15 +23,17 @@ import (
 )
 
 var (
-	db       *sql.DB
-	db_mu    sync.RWMutex
-	dbday_mu sync.RWMutex
-	dbmon_mu sync.RWMutex
-	Info     *log.Logger
-	Warning  *log.Logger
-	Error    *log.Logger
-	Bw_int   *syncmap.SyncMap
-	Hardw    *gohw.GoHw
+	db         *sql.DB
+	db_mu      sync.Mutex
+	dbday_mu   sync.Mutex
+	dbmon_mu   sync.Mutex
+	Info       *log.Logger
+	Warning    *log.Logger
+	Error      *log.Logger
+	Bw_int     *syncmap.SyncMap
+	Hardw      *gohw.GoHw
+	dbgeoip    *geoip2.Reader
+	mu_dbgeoip sync.Mutex
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -56,6 +58,16 @@ func init() {
 	}
 	db.Exec("PRAGMA journal_mode=WAL;")
 	Bw_int = syncmap.New()
+
+	// Antes de abrir la BD GeoIP2 City
+	if _, err := os.Stat(DirRamDB + "GeoIP2-City.mmdb"); err != nil { // es la primera ejecución, o hemos reiniciado la maquina (reboot)
+		exec.Command("/bin/sh", "-c", fmt.Sprintf("cp -f %sGeoIP2-City.mmdb* %s", DirDB, DirRamDB)).Run()
+		exec.Command("/bin/sh", "-c", "sync").Run()
+	}
+	dbgeoip, err = geoip2.Open("/var/segments/GeoIP2-City.mmdb")
+	if err != nil {
+		log.Fatal("Fallo al abrir el GeoIP2:", err)
+	}
 }
 
 // funcion principal del programa
@@ -212,9 +224,9 @@ func encoder() {
 					tiempo_now := time.Now().Unix()          // Tiempo actual
 					Bw_int.Set(val.Nombre, toInt(val.Bw_in)) // Guardamos el bitrate
 					info := fmt.Sprintf("%sx%sx%s %s/%s", val.Width, val.Height, val.Frame, val.Vcodec, val.Acodec)
-					db_mu.RLock()
+					db_mu.Lock()
 					err := db.QueryRow("SELECT count(*) FROM encoders WHERE username = ? AND streamname = ? AND ip= ?", username, streamname, val2.Ip).Scan(&count)
-					db_mu.RUnlock()
+					db_mu.Unlock()
 					if err != nil {
 						Error.Println(err)
 					}
@@ -296,9 +308,9 @@ func mantenimiento() {
 				db.Exec("DELETE FROM players WHERE timestamp < ?", limit_time)
 				db_mu.Unlock()
 				// Se seleccionan el total de Ips, las horas totales y el total de Gigabytes
-				db_mu.RLock()
+				db_mu.Lock()
 				query, err := db.Query("SELECT count(ipclient), sum(total_time)/3600, sum(kilobytes)/1000000, username, streamname FROM players GROUP BY username, streamname")
-				db_mu.RUnlock()
+				db_mu.Unlock()
 				if err != nil {
 					Error.Println(err)
 				}
@@ -320,9 +332,9 @@ func mantenimiento() {
 					}
 					// Se seleccionan el máximo de usuarios conectados, y la hora:min de la dayly antigua
 					// SELECT sum(count) AS cuenta, username, streamname, hour, minutes FROM resumen WHERE username = ? AND streamname = ? GROUP BY username, streamname, hour, minutes ORDER BY cuenta DESC
-					dbday_mu.RLock()
+					dbday_mu.Lock()
 					err := db1.QueryRow("SELECT sum(count) AS cuenta, username, streamname, hour, minutes FROM resumen WHERE username = ? AND streamname = ? GROUP BY username, streamname, hour, minutes ORDER BY cuenta DESC", userName, streamName).Scan(&pico, &userName, &streamName, &horapico, &minpico)
-					dbday_mu.RUnlock()
+					dbday_mu.Unlock()
 					if err != nil {
 						Error.Println(err)
 					}
@@ -353,9 +365,9 @@ func mantenimiento() {
 		if err != nil {
 			Error.Println(err)
 		}
-		db_mu.RLock()
+		db_mu.Lock()
 		query, err := db.Query("SELECT count(ipclient), username, streamname, os,  isocode, sum(total_time), sum(kilobytes) FROM players WHERE timestamp > ? AND time > 0 GROUP BY username, streamname, os, isocode", tiempo_limite)
-		db_mu.RUnlock()
+		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
 		}
@@ -383,14 +395,9 @@ func mantenimiento() {
 }
 
 func geoIP(ip_parsing string) (city, region, country, isocode, timezone string, lat, long float64) {
-	db, err := geoip2.Open(dirGeoip)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
 	// If you are using strings that may be invalid, check that ip is not nil
 	ip := net.ParseIP(ip_parsing)
-	record, err := db.City(ip)
+	record, err := dbgeoip.City(ip)
 	if err != nil {
 		log.Fatal(err)
 	}
