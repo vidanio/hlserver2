@@ -6,7 +6,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/todostreaming/geoip2-golang"
+	"github.com/oschwald/geoip2-golang"
 	"github.com/todostreaming/gohw"
 	"github.com/todostreaming/syncmap"
 	"io"
