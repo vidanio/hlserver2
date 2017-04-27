@@ -399,7 +399,7 @@ func geoIP(ip_parsing string) (city, region, country, isocode, timezone string, 
 	ip := net.ParseIP(ip_parsing)
 	record, err := dbgeoip.City(ip)
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 	city = record.City.Names["en"]
 	if len(record.Subdivisions) > 0 {
