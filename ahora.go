@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
 var cloud map[string]string = make(map[string]string)
+var mu_cloud sync.Mutex
 
 func encoderStatNow(w http.ResponseWriter, r *http.Request) {
 
@@ -16,7 +18,9 @@ func encoderStatNow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := cookie.Value
+	mu_user.Lock()
 	usr, ok := user[key] // De aquí podemos recoger el usuario
+	mu_user.Unlock()
 	if !ok {
 		return
 	}
@@ -56,7 +60,9 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := cookie.Value
+	mu_user.Lock()
 	usr, ok := user[key] // De aquí podemos recoger el usuario
+	mu_user.Unlock()
 	if !ok {
 		return
 	}
@@ -120,7 +126,9 @@ func play(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := cookie.Value
+	mu_user.Lock()
 	usr, ok := user[key] // De aquí podemos recoger el usuario
+	mu_user.Unlock()
 	if !ok {
 		return
 	}
@@ -128,7 +136,9 @@ func play(w http.ResponseWriter, r *http.Request) {
 	loadSettings(playingsRoot)
 	r.ParseForm() // recupera campos del form tanto GET como POST
 	allname := username + "-" + r.FormValue("stream")
+	mu_cloud.Lock()
 	stream := "http://" + cloud["cloudserver"] + "/live/" + allname + ".m3u8"
+	mu_cloud.Unlock()
 	video := fmt.Sprintf("<script type='text/javascript' src='http://www.domainplayers.org/js/jwplayer.js'></script><div id='container'><video width='600' height='409' controls autoplay src='%s'/></div><script type='text/javascript'>jwplayer('container').setup({ width: '600', height: '409', skin: 'http://www.domainplayers.org/newtubedark.zip', plugins: { 'http://www.domainplayers.org/qualitymonitor.swf' : {} }, image: '', modes: [{ type:'flash', src:'http://www.domainplayers.org/player.swf', config: { autostart: 'true', provider:'http://www.domainplayers.org/HLSProvider5.swf', file:'%s' } }]});</script>", stream, stream)
 	fmt.Fprintf(w, "%s", video)
 }

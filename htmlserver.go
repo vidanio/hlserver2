@@ -97,8 +97,9 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 				} else {
 					key := cookie.Value
-
+					mu_user.Lock()
 					_, ok := user[key] // De aquí podemos recoger el usuario
+					mu_user.Unlock()
 					if ok {
 						cookie.Expires = time.Now().Add(time.Duration(session_timeout) * time.Second)
 						http.SetCookie(w, cookie)

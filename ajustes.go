@@ -12,7 +12,9 @@ func user_admin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := cookie.Value
+	mu_user.Lock()
 	usr, ok := user[key] // De aquí podemos recoger el usuario
+	mu_user.Unlock()
 	if !ok {
 		return
 	}
@@ -27,7 +29,9 @@ func editar_admin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := cookie.Value
+	mu_user.Lock()
 	usr, ok := user[key] // De aquí podemos recoger el usuario
+	mu_user.Unlock()
 	if !ok {
 		return
 	}
@@ -56,7 +60,9 @@ func editar_cliente(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := cookie.Value
+	mu_user.Lock()
 	usr, ok := user[key] // De aquí podemos recoger el usuario
+	mu_user.Unlock()
 	if !ok {
 		return
 	}

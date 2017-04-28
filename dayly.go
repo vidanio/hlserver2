@@ -31,7 +31,9 @@ func zeroFields(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := cookie.Value
+	mu_user.Lock()
 	usr, ok := user[key] // De aquí podemos recoger el usuario
+	mu_user.Unlock()
 	if !ok {
 		return
 	}
@@ -63,7 +65,9 @@ func firstFecha(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := cookie.Value
+	mu_user.Lock()
 	usr, ok := user[key] // De aquí podemos recoger el usuario
+	mu_user.Unlock()
 	if !ok {
 		return
 	}
@@ -182,7 +186,9 @@ func consultaFecha(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	key := cookie.Value
+	mu_user.Lock()
 	usr, ok := user[key] // De aquí podemos recoger el usuario
+	mu_user.Unlock()
 	if !ok {
 		return
 	}

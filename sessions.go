@@ -6,19 +6,23 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
 // mapas de control de sessions
 var user map[string]string = make(map[string]string)
 var tiempo map[string]time.Time = make(map[string]time.Time)
+var mu_user sync.Mutex
 
 func controlinternalsessions() {
 	for {
 		for k, v := range tiempo {
 			if (time.Since(v).Seconds() + float64(session_timeout)) > float64(session_timeout) {
+				mu_user.Lock()
 				delete(user, k)
 				delete(tiempo, k)
+				mu_user.Unlock()
 			}
 		}
 		time.Sleep(1 * time.Second)
@@ -53,8 +57,10 @@ func login(w http.ResponseWriter, r *http.Request) {
 		http.SetCookie(w, &cookie)
 		//fmt.Println("Escribo Cookie")
 		// Guardamos constancia de la session en nuestros mapas internos
+		mu_user.Lock()
 		user[sid] = usuario
 		tiempo[sid] = expiration
+		mu_user.Unlock()
 		// Enviamos a la pagina de entrada tras el login correcto
 		http.Redirect(w, r, "/"+enter_page, http.StatusFound)
 	} else {
@@ -68,8 +74,10 @@ func login(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, &cookie)
 			//fmt.Println("Escribo Cookie")
 			// Guardamos constancia de la session en nuestros mapas internos
+			mu_user.Lock()
 			user[sid] = usuario
 			tiempo[sid] = expiration
+			mu_user.Unlock()
 			// Enviamos a la pagina de entrada tras el login correcto
 			http.Redirect(w, r, "/"+enter_page_admin, http.StatusFound)
 		} else {
@@ -90,8 +98,10 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	} else {
 		cookie.MaxAge = -1
 		http.SetCookie(w, cookie)
+		mu_user.Lock()
 		delete(user, cookie.Value)
 		delete(tiempo, cookie.Value)
+		mu_user.Unlock()
 
 		http.Redirect(w, r, "/"+first_page+".html", http.StatusFound)
 	}

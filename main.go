@@ -426,9 +426,11 @@ func loadSettings(filename string) {
 			}
 			linea = strings.TrimRight(linea, "\n")
 			item := strings.Split(linea, " = ")
+			mu_cloud.Lock()
 			if len(item) == 2 {
 				cloud[item[0]] = item[1]
 			}
+			mu_cloud.Unlock()
 		}
 	}
 }
