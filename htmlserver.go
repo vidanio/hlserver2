@@ -97,10 +97,9 @@ func root(w http.ResponseWriter, r *http.Request) {
 
 				} else {
 					key := cookie.Value
-					dir_ip := getip(r.RemoteAddr)
 
 					_, ok := user[key] // De aquí podemos recoger el usuario
-					if ok && ip[key] == dir_ip {
+					if ok {
 						cookie.Expires = time.Now().Add(time.Duration(session_timeout) * time.Second)
 						http.SetCookie(w, cookie)
 						tiempo[cookie.Value] = cookie.Expires

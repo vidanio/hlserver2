@@ -4,7 +4,7 @@ const (
 	// variables de configuracion del servidor HTTP
 	rootdir                = "/var/segments/"              // raiz de nuestro sitio web
 	session           bool = true                          // habilitado el control de sesiones por cookies
-	session_timeout        = 600                           // segundos de timeout de una session
+	session_timeout        = 86400                         // segundos de timeout de una session
 	first_page             = "index"                       // Sería la página de login (siempre es .html)
 	enter_page             = "ahora.html"                  // Sería la página de entrada tras el login
 	enter_page_admin       = "monthly_admin.html"          // Sería la página de entrada al panel admin tras el login

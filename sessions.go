@@ -11,7 +11,6 @@ import (
 
 // mapas de control de sessions
 var user map[string]string = make(map[string]string)
-var ip map[string]string = make(map[string]string)
 var tiempo map[string]time.Time = make(map[string]time.Time)
 
 func controlinternalsessions() {
@@ -19,7 +18,6 @@ func controlinternalsessions() {
 		for k, v := range tiempo {
 			if (time.Since(v).Seconds() + float64(session_timeout)) > float64(session_timeout) {
 				delete(user, k)
-				delete(ip, k)
 				delete(tiempo, k)
 			}
 		}
@@ -56,7 +54,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 		//fmt.Println("Escribo Cookie")
 		// Guardamos constancia de la session en nuestros mapas internos
 		user[sid] = usuario
-		ip[sid] = getip(r.RemoteAddr)
 		tiempo[sid] = expiration
 		// Enviamos a la pagina de entrada tras el login correcto
 		http.Redirect(w, r, "/"+enter_page, http.StatusFound)
@@ -72,7 +69,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 			//fmt.Println("Escribo Cookie")
 			// Guardamos constancia de la session en nuestros mapas internos
 			user[sid] = usuario
-			ip[sid] = getip(r.RemoteAddr)
 			tiempo[sid] = expiration
 			// Enviamos a la pagina de entrada tras el login correcto
 			http.Redirect(w, r, "/"+enter_page_admin, http.StatusFound)
@@ -95,7 +91,6 @@ func logout(w http.ResponseWriter, r *http.Request) {
 		cookie.MaxAge = -1
 		http.SetCookie(w, cookie)
 		delete(user, cookie.Value)
-		delete(ip, cookie.Value)
 		delete(tiempo, cookie.Value)
 
 		http.Redirect(w, r, "/"+first_page+".html", http.StatusFound)
