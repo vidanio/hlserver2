@@ -18,14 +18,14 @@ var mu_user sync.Mutex
 func controlinternalsessions() {
 	for {
 		for k, v := range tiempo {
-			if (time.Since(v).Seconds() + float64(session_timeout)) > float64(session_timeout) {
+			if time.Since(v).Seconds() > 0 { // it is negative up to expiration time
 				mu_user.Lock()
 				delete(user, k)
 				delete(tiempo, k)
 				mu_user.Unlock()
 			}
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(10 * time.Second)
 	}
 }
 
