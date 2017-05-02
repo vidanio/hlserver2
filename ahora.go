@@ -30,9 +30,7 @@ func encoderStatNow(w http.ResponseWriter, r *http.Request) {
 	hh, mm, _ := time.Now().Clock()
 	hora := fmt.Sprintf("%02d:%02d", hh, mm)
 	tiempo_limite := time.Now().Unix() - 6 //tiempo limite de 6 seg
-	db_mu.Lock()
 	query, err := db.Query("SELECT streamname, isocode, ip, country, time, bitrate, info FROM encoders WHERE username = ? AND timestamp > ?", username, tiempo_limite)
-	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
 	}
@@ -69,16 +67,12 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 	username := usr
 	var contador int
 	tiempo_limite := time.Now().Unix() - 30 //tiempo limite de 30 seg
-	db_mu.Lock()
 	err := db.QueryRow("SELECT count(*) FROM players WHERE username = ? AND timestamp > ? AND time > 0", username, tiempo_limite).Scan(&contador)
-	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
 	}
 	if contador >= 100 {
-		db_mu.Lock()
 		query, err := db.Query("SELECT isocode, country, count(ipclient), streamname FROM players WHERE username = ? AND timestamp > ? AND time > 0 GROUP BY isocode, streamname", username, tiempo_limite)
-		db_mu.Unlock()
 		if err != nil {
 			Error.Println(err)
 		}
@@ -95,9 +89,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 		query.Close()
 		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='7'><b>Total:</b> %d players conectados</td></tr></table>", contador)
 	} else {
-		db_mu.Lock()
 		query, err := db.Query("SELECT isocode, country, region, city, ipclient, os, streamname, time FROM players WHERE username = ? AND timestamp > ? AND time > 0", username, tiempo_limite)
-		db_mu.Unlock()
 		if err != nil {
 			Warning.Println(err)
 		}

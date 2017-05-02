@@ -162,9 +162,7 @@ func createStats(namefile, agent, forwarded, remoteip, ciudad string) {
 		ipcliente = forwarded
 		ipproxy = remoteip
 	}
-	db_mu.Lock()
 	query, err := db.Query("SELECT timestamp, time, kilobytes, total_time FROM players WHERE username = ? AND streamname = ? AND ipclient= ? AND os = ?", user, streamname, ipcliente, so)
-	db_mu.Unlock()
 	if err != nil {
 		Error.Println(err)
 	}

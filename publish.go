@@ -11,9 +11,7 @@ func publish(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	stream := strings.Split(r.FormValue("name"), "-")
 	nom_user := stream[0]
-	db_mu.Lock()
 	query, err := db.Query("SELECT username, password, status FROM admin WHERE username = ?", nom_user)
-	db_mu.Unlock()
 	if err != nil {
 		Warning.Println(err)
 	}
