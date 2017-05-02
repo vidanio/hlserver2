@@ -57,9 +57,9 @@ func putMonthlyAdmin(w http.ResponseWriter, r *http.Request) {
 		} else {
 			estado = "OFF"
 		}
-		dbmon_mu.Lock()
+		dbmon_mu.RLock()
 		query, err := db0.Query("SELECT sum(minutos), sum(megabytes) FROM resumen WHERE username = ? GROUP BY username", user)
-		dbmon_mu.Unlock()
+		dbmon_mu.RUnlock()
 		if err != nil {
 			Error.Println(err)
 		}
@@ -106,9 +106,9 @@ func putMonthlyAdminChange(w http.ResponseWriter, r *http.Request) {
 			} else {
 				estado = "OFF"
 			}
-			dbmon_mu.Lock()
+			dbmon_mu.RLock()
 			query, err := db0.Query("SELECT sum(minutos), sum(megabytes) FROM resumen WHERE username = ? GROUP BY username", user)
-			dbmon_mu.Unlock()
+			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
 			}

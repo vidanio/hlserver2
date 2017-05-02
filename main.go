@@ -25,8 +25,8 @@ import (
 var (
 	db         *sql.DB
 	db_mu      sync.Mutex
-	dbday_mu   sync.Mutex
-	dbmon_mu   sync.Mutex
+	dbday_mu   sync.RWMutex
+	dbmon_mu   sync.RWMutex
 	Info       *log.Logger
 	Warning    *log.Logger
 	Error      *log.Logger
@@ -328,9 +328,9 @@ func mantenimiento() {
 					}
 					// Se seleccionan el máximo de usuarios conectados, y la hora:min de la dayly antigua
 					// SELECT sum(count) AS cuenta, username, streamname, hour, minutes FROM resumen WHERE username = ? AND streamname = ? GROUP BY username, streamname, hour, minutes ORDER BY cuenta DESC
-					dbday_mu.Lock()
+					dbday_mu.RLock()
 					err := db1.QueryRow("SELECT sum(count) AS cuenta, username, streamname, hour, minutes FROM resumen WHERE username = ? AND streamname = ? GROUP BY username, streamname, hour, minutes ORDER BY cuenta DESC", userName, streamName).Scan(&pico, &userName, &streamName, &horapico, &minpico)
-					dbday_mu.Unlock()
+					dbday_mu.RUnlock()
 					if err != nil {
 						Error.Println(err)
 					}

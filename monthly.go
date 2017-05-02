@@ -78,9 +78,9 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 		Error.Println(err)
 	}
 	//Generamos el select de streams
-	dbmon_mu.Lock()
+	dbmon_mu.RLock()
 	query2, err := db0.Query("SELECT  DISTINCT(streamname) FROM resumen WHERE username = ?", username)
-	dbmon_mu.Unlock()
+	dbmon_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
 	}
@@ -90,9 +90,9 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 	} else {
 		//Si, existen campos. Formamos el select
 		menu3 = "<option label='todo' value='todo' selected>Todo</option>"
-		dbmon_mu.Lock()
+		dbmon_mu.RLock()
 		query3, err := db0.Query("SELECT  DISTINCT(streamname) FROM resumen WHERE username = ?", username)
-		dbmon_mu.Unlock()
+		dbmon_mu.RUnlock()
 		if err != nil {
 			Error.Println(err)
 		}
@@ -111,9 +111,9 @@ func firstMonthly(w http.ResponseWriter, r *http.Request) {
 	for i := 1; i <= daysIn(mes, anio); i++ {
 		fechaAud = append(fechaAud, i)
 	}
-	dbmon_mu.Lock()
+	dbmon_mu.RLock()
 	query, err := db0.Query("SELECT sum(audiencia), sum(minutos), avg(minutos), sum(megabytes), max(pico), horapico, fecha FROM resumen WHERE username = ? GROUP BY fecha", username)
-	dbmon_mu.Unlock()
+	dbmon_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
 	}
@@ -196,9 +196,9 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				Error.Println(err)
 			}
 			//Generamos el select de streams
-			dbmon_mu.Lock()
+			dbmon_mu.RLock()
 			query2, err := db0.Query("SELECT  DISTINCT(streamname) FROM resumen WHERE username = ?", username)
-			dbmon_mu.Unlock()
+			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
 			}
@@ -208,9 +208,9 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 			} else {
 				//Si, existen campos. Formamos el select
 				menu3 = "<option label='todo' value='todo' selected>Todo</option>"
-				dbmon_mu.Lock()
+				dbmon_mu.RLock()
 				query3, err := db0.Query("SELECT  DISTINCT(streamname) FROM resumen WHERE username = ?", username)
-				dbmon_mu.Unlock()
+				dbmon_mu.RUnlock()
 				if err != nil {
 					Warning.Println(err)
 				}
@@ -225,9 +225,9 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				query3.Close()
 			}
 			query2.Close()
-			dbmon_mu.Lock()
+			dbmon_mu.RLock()
 			query, err := db0.Query("SELECT sum(audiencia), sum(minutos), avg(minutos), sum(megabytes), max(pico), horapico, fecha FROM resumen WHERE username = ? GROUP BY fecha", username)
-			dbmon_mu.Unlock()
+			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
 			}
@@ -270,9 +270,9 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				Error.Println(err)
 			}
-			dbmon_mu.Lock()
+			dbmon_mu.RLock()
 			query2, err := db0.Query("SELECT  DISTINCT(streamname) FROM resumen WHERE username = ?", username)
-			dbmon_mu.Unlock()
+			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
 			}
@@ -292,9 +292,9 @@ func graficosMonthly(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			query2.Close()
-			dbmon_mu.Lock()
+			dbmon_mu.RLock()
 			query, err := db0.Query("SELECT sum(audiencia), sum(minutos), avg(minutos), sum(megabytes), max(pico), horapico, fecha FROM resumen WHERE username = ? AND streamname = ? GROUP BY fecha", username, r.FormValue("stream"))
-			dbmon_mu.Unlock()
+			dbmon_mu.RUnlock()
 			if err != nil {
 				Error.Println(err)
 			}
@@ -358,9 +358,9 @@ func totalMonths(w http.ResponseWriter, r *http.Request) {
 		Error.Println(err)
 	}
 	defer db0.Close()
-	dbmon_mu.Lock()
+	dbmon_mu.RLock()
 	query, err := db0.Query("SELECT sum(minutos), sum(megabytes) FROM resumen WHERE username = ? GROUP BY username", username)
-	dbmon_mu.Unlock()
+	dbmon_mu.RUnlock()
 	if err != nil {
 		Error.Println(err)
 	}
@@ -404,9 +404,9 @@ func totalMonthsChange(w http.ResponseWriter, r *http.Request) {
 			Error.Println(err)
 		}
 		defer db0.Close()
-		dbmon_mu.Lock()
+		dbmon_mu.RLock()
 		query, err := db0.Query("SELECT sum(minutos), sum(megabytes) FROM resumen WHERE username = ? GROUP BY username", username)
-		dbmon_mu.Unlock()
+		dbmon_mu.RUnlock()
 		if err != nil {
 			Warning.Println(err)
 		}
