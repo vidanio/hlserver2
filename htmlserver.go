@@ -17,27 +17,22 @@ import (
 func root(w http.ResponseWriter, r *http.Request) {
 	var namefile string
 	namefile = strings.TrimRight(rootdir+r.URL.Path[1:], "/")
-	//fmt.Println("... Buscando fichero: ",namefile)
 	fileinfo, err := os.Stat(namefile)
 	if err != nil {
 		// fichero no existe
-		//fmt.Println("404 - Fichero no encontrado: ",namefile)
 		http.NotFound(w, r)
 		return
 	} else if fileinfo.IsDir() {
 		// es un directorio, luego le añadimos index.html
 		namefile = namefile + "/" + first_page + ".html"
-		//fmt.Println("/ - Entramos en el Directorio Buscando el fichero: ",namefile)
 		_, err2 := os.Stat(namefile)
 		if err2 != nil {
-			//fmt.Println("404 - Fichero no encontrado: ",namefile)
 			http.NotFound(w, r)
 			return
 		}
 	}
 	fr, errn := os.Open(namefile)
 	if errn != nil {
-		//fmt.Printf("[root(4)] - Error de acceso al fichero: %s\n",namefile)
 		http.Error(w, "Internal Server Error", 500)
 		return
 	}
@@ -58,7 +53,6 @@ func root(w http.ResponseWriter, r *http.Request) {
 			go createStats(namefile, r.Header.Get("User-Agent"), realip.RealIP(r), getip(r.RemoteAddr), query.Get("city")) // try to use less internal variables to save ram usage
 		}
 		io.Copy(w, fr)
-		//fmt.Printf("%s TIEMPO: [%02d:%02d:%02d]\n", namefile, hh, mm, ss)
 		return
 	} else if strings.Contains(namefile, ".ts") {
 		w.Header().Set("Cache-Control", "max-age=300")
@@ -71,13 +65,11 @@ func root(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileinfo.Size()))
 		w.Header().Set("Accept-Ranges", "bytes")
 		io.Copy(w, fr)
-		//fmt.Printf("%s TIEMPO: [%02d:%02d:%02d]\n", namefile, hh, mm, ss)
 		return
 	}
 	if session {
 		// ?err parsing
 		if strings.Contains(r.URL.String(), "?err") {
-			//fmt.Println("Ruta: " + namefile + " contiene ?err")
 			// sustituimos <span id="loginerr"></span> por un texto de error a mostrar
 			buf, _ := ioutil.ReadAll(fr) // leemos el HTML template de una sola vez
 			html := string(buf)
@@ -105,8 +97,9 @@ func root(w http.ResponseWriter, r *http.Request) {
 					if ok {
 						cookie.Expires = time.Now().Add(time.Duration(session_timeout) * time.Second)
 						http.SetCookie(w, cookie)
+						mu_user.Lock()
 						tiempo[cookie.Value] = cookie.Expires
-
+						mu_user.Unlock()
 						http.ServeContent(w, r, namefile, fileinfo.ModTime(), fr)
 					} else {
 						Error.Println("No existe cookie")

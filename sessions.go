@@ -55,7 +55,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 		expiration := time.Now().Add(time.Duration(session_timeout) * time.Second)
 		cookie := http.Cookie{Name: CookieName, Value: sid, Expires: expiration}
 		http.SetCookie(w, &cookie)
-		//fmt.Println("Escribo Cookie")
 		// Guardamos constancia de la session en nuestros mapas internos
 		mu_user.Lock()
 		user[sid] = usuario
@@ -72,7 +71,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 			expiration := time.Now().Add(time.Duration(session_timeout) * time.Second)
 			cookie := http.Cookie{Name: CookieName, Value: sid, Expires: expiration}
 			http.SetCookie(w, &cookie)
-			//fmt.Println("Escribo Cookie")
 			// Guardamos constancia de la session en nuestros mapas internos
 			mu_user.Lock()
 			user[sid] = usuario
@@ -82,7 +80,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/"+enter_page_admin, http.StatusFound)
 		} else {
 			// Te devolvemos a la pagina inicial de login
-			//fmt.Println("Login incorrecto")
 			http.Redirect(w, r, "/"+first_page+".html?err", http.StatusFound)
 		}
 	}
