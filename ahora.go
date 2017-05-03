@@ -72,7 +72,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 		Error.Println(err)
 	}
 	if contador >= 100 {
-		query, err := db.Query("SELECT isocode, country, count(ipclient) AS count, streamname FROM players WHERE username = ? AND timestamp > ? AND time > 0 GROUP BY isocode, streamname ORDER BY count DESC", username, tiempo_limite)
+		query, err := db.Query("SELECT isocode, country, count(ipclient) AS count, streamname FROM players WHERE username = ? AND timestamp > ? AND time > 0 GROUP BY isocode, streamname ORDER BY streamname, count DESC", username, tiempo_limite)
 		if err != nil {
 			Error.Println(err)
 		}
@@ -89,7 +89,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 		query.Close()
 		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='7'><b>Total:</b> %d players conectados</td></tr></table>", contador)
 	} else {
-		query, err := db.Query("SELECT isocode, country, region, city, ipclient, os, streamname, time FROM players WHERE username = ? AND timestamp > ? AND time > 0 ORDER BY time DESC", username, tiempo_limite)
+		query, err := db.Query("SELECT isocode, country, region, city, ipclient, os, streamname, time FROM players WHERE username = ? AND timestamp > ? AND time > 0 ORDER BY streamname, time DESC", username, tiempo_limite)
 		if err != nil {
 			Warning.Println(err)
 		}
