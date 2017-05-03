@@ -54,7 +54,9 @@ func root(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Length", fmt.Sprintf("%d", fileinfo.Size()))
 		w.Header().Set("Accept-Ranges", "bytes")
 		query, _ := url.ParseQuery(r.URL.RawQuery)
-		go createStats(namefile, r.Header.Get("User-Agent"), realip.RealIP(r), getip(r.RemoteAddr), query.Get("city")) // try to use less internal variables to save ram usage
+		if numgo < 1000000 { // if there are more than 1M goroutines working, live stats will stop for a while
+			go createStats(namefile, r.Header.Get("User-Agent"), realip.RealIP(r), getip(r.RemoteAddr), query.Get("city")) // try to use less internal variables to save ram usage
+		}
 		io.Copy(w, fr)
 		//fmt.Printf("%s TIEMPO: [%02d:%02d:%02d]\n", namefile, hh, mm, ss)
 		return

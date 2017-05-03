@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -34,6 +35,7 @@ var (
 	Hardw      *gohw.GoHw
 	dbgeoip    *geoip2.Reader
 	mu_dbgeoip sync.Mutex
+	numgo      int //number of goroutines working
 )
 
 // Inicializamos la conexion a BD y el log de errores
@@ -100,6 +102,13 @@ func main() {
 			exec.Command("/bin/sh", "-c", fmt.Sprintf("cp -f %slive.db* %s", DirRamDB, DirDB)).Run()
 			exec.Command("/bin/sh", "-c", "sync").Run()
 			db_mu.Unlock()
+		}
+	}()
+	go func() {
+		for {
+			numgo = runtime.NumGoroutine()
+			time.Sleep(100 * time.Millisecond)
+
 		}
 	}()
 	go mantenimiento()
