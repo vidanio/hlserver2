@@ -14,7 +14,10 @@ func publish(w http.ResponseWriter, r *http.Request) {
 	query, err := db.Query("SELECT username, password, status FROM admin WHERE username = ?", nom_user)
 	if err != nil {
 		Warning.Println(err)
+		http.Error(w, "Internal Server Error", 500)
+		return
 	}
+	defer query.Close()
 	for query.Next() {
 		var user, pass string
 		var status int
@@ -24,11 +27,13 @@ func publish(w http.ResponseWriter, r *http.Request) {
 		}
 		if user == r.FormValue("username") && pass == r.FormValue("password") && r.FormValue("call") == "publish" && status == 1 {
 			fmt.Fprintf(w, "Server OK")
+			return
 		} else {
 			http.Error(w, "Internal Server Error", 500)
+			return
 		}
 	}
-	query.Close()
+	http.Error(w, "Internal Server Error", 500)
 }
 
 func onplay(w http.ResponseWriter, r *http.Request) {
