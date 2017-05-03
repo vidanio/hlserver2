@@ -77,7 +77,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 			Error.Println(err)
 		}
 		fmt.Fprintf(w, "<table class=\"table table-striped table-bordered table-hover\"><th>País</th><th>Cantidad de IPs</th><th>Stream</th>")
-		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='7'><b>Total:</b> %d players conectados</td></tr></table>", contador)
+		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='7'><b>Total:</b> %d players conectados</td></tr>", contador)
 		for query.Next() {
 			var isocode, country, ips, streamname string
 			err = query.Scan(&isocode, &country, &ips, &streamname)
@@ -88,13 +88,14 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 				country, isocode, country, ips, streamname)
 		}
 		query.Close()
+		fmt.Fprintf(w, "</table>")
 	} else {
 		query, err := db.Query("SELECT isocode, country, region, city, ipclient, os, streamname, time FROM players WHERE username = ? AND timestamp > ? AND time > 0 ORDER BY streamname, time DESC", username, tiempo_limite)
 		if err != nil {
 			Warning.Println(err)
 		}
 		fmt.Fprintf(w, "<table class=\"table table-striped table-bordered table-hover\"><th>País</th><th>Region</th><th>Ciudad</th><th>Dirección IP</th><th>Stream</th><th>O.S</th><th>Tiempo conectado</th>")
-		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='8'><b>Total:</b> %d players conectados</td></tr></table>", contador)
+		fmt.Fprintf(w, "<tr><td align=\"center\" colspan='8'><b>Total:</b> %d players conectados</td></tr>", contador)
 		for query.Next() {
 			var isocode, country, region, city, ipclient, os, streamname, time_connect string
 			var tiempo int
@@ -109,6 +110,7 @@ func playerStatNow(w http.ResponseWriter, r *http.Request) {
 				country, isocode, country, region, city, ipclient, streamname, os, time_connect)
 		}
 		query.Close()
+		fmt.Fprintf(w, "</table>")
 	}
 }
 
