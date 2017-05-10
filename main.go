@@ -215,11 +215,17 @@ func encoder() {
 		}
 		body, err := ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
+		if err != nil {
+			Warning.Println(err)
+			time.Sleep(3 * time.Second)
+			continue
+		}
 		v := Result{}
 		err = xml.Unmarshal([]byte(body), &v)
 		if err != nil {
 			Error.Printf("xml read error: %s", err)
-			return
+			time.Sleep(3 * time.Second)
+			continue
 		}
 		for _, val := range v.Stream {
 			for _, val2 := range val.ClientList {
