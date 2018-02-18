@@ -113,48 +113,52 @@ func main() {
 	}()
 	go mantenimiento()
 	go encoder()
-	// Handlers del Servidor HTTP
-	s := &http.Server{
-		Addr:           ":" + http_port,  // config http port
-		Handler:        nil,              // Default Muxer for handler as usual
-		ReadTimeout:    20 * time.Second, // send a segment in POST body
-		WriteTimeout:   20 * time.Second, // receive a segment in GET req
-		MaxHeaderBytes: 1 << 13,          // 8K as Apache and others
-	}
+	go log.Fatal(http.ListenAndServe(":" + http_port, http.HandlerFunc(redirect)))
 
-	http.HandleFunc("/", root)
-	http.HandleFunc(login_cgi, login)
-	http.HandleFunc(logout_cgi, logout)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", root)
+	mux.HandleFunc(login_cgi, login)
+	mux.HandleFunc(logout_cgi, logout)
 	// Handlers de graficos
-	http.HandleFunc("/encoderStatNow.cgi", encoderStatNow)
-	http.HandleFunc("/playerStatNow.cgi", playerStatNow)
-	http.HandleFunc("/consultaFecha.cgi", consultaFecha)
-	http.HandleFunc("/firstFecha.cgi", firstFecha)
-	http.HandleFunc("/getMonthsYears.cgi", getMonthsYears)
-	http.HandleFunc("/giveFecha.cgi", giveFecha)
-	http.HandleFunc("/zeroFields.cgi", zeroFields)
-	http.HandleFunc("/formatDaylyhtml.cgi", formatDaylyhtml)
-	http.HandleFunc("/createGraf.cgi", createGraf)
-	http.HandleFunc("/firstMonthly.cgi", firstMonthly)
-	http.HandleFunc("/graficosMonthly.cgi", graficosMonthly)
-	http.HandleFunc("/play.cgi", play)
-	http.HandleFunc("/publish.cgi", publish)
-	http.HandleFunc("/onplay.cgi", onplay)
-	http.HandleFunc("/getMonthsYearsAdmin.cgi", getMonthsYearsAdmin)
-	http.HandleFunc("/putMonthlyAdmin.cgi", putMonthlyAdmin)
-	http.HandleFunc("/putMonthlyAdminChange.cgi", putMonthlyAdminChange)
-	http.HandleFunc("/editar_admin.cgi", editar_admin)
-	http.HandleFunc("/editar_cliente.cgi", editar_cliente)
-	http.HandleFunc("/user_admin.cgi", user_admin)
-	http.HandleFunc("/changeStatus.cgi", changeStatus)
-	http.HandleFunc("/nuevoCliente.cgi", nuevoCliente)
-	http.HandleFunc("/borrarCliente.cgi", borrarCliente)
-	http.HandleFunc("/buscarClientes.cgi", buscarClientes)
-	http.HandleFunc("/totalMonths.cgi", totalMonths)
-	http.HandleFunc("/totalMonthsChange.cgi", totalMonthsChange)
-	http.HandleFunc("/hardware.cgi", gethardware)
+	mux.HandleFunc("/encoderStatNow.cgi", encoderStatNow)
+	mux.HandleFunc("/playerStatNow.cgi", playerStatNow)
+	mux.HandleFunc("/consultaFecha.cgi", consultaFecha)
+	mux.HandleFunc("/firstFecha.cgi", firstFecha)
+	mux.HandleFunc("/getMonthsYears.cgi", getMonthsYears)
+	mux.HandleFunc("/giveFecha.cgi", giveFecha)
+	mux.HandleFunc("/zeroFields.cgi", zeroFields)
+	mux.HandleFunc("/formatDaylyhtml.cgi", formatDaylyhtml)
+	mux.HandleFunc("/createGraf.cgi", createGraf)
+	mux.HandleFunc("/firstMonthly.cgi", firstMonthly)
+	mux.HandleFunc("/graficosMonthly.cgi", graficosMonthly)
+	mux.HandleFunc("/play.cgi", play)
+	mux.HandleFunc("/publish.cgi", publish)
+	mux.HandleFunc("/onplay.cgi", onplay)
+	mux.HandleFunc("/getMonthsYearsAdmin.cgi", getMonthsYearsAdmin)
+	mux.HandleFunc("/putMonthlyAdmin.cgi", putMonthlyAdmin)
+	mux.HandleFunc("/putMonthlyAdminChange.cgi", putMonthlyAdminChange)
+	mux.HandleFunc("/editar_admin.cgi", editar_admin)
+	mux.HandleFunc("/editar_cliente.cgi", editar_cliente)
+	mux.HandleFunc("/user_admin.cgi", user_admin)
+	mux.HandleFunc("/changeStatus.cgi", changeStatus)
+	mux.HandleFunc("/nuevoCliente.cgi", nuevoCliente)
+	mux.HandleFunc("/borrarCliente.cgi", borrarCliente)
+	mux.HandleFunc("/buscarClientes.cgi", buscarClientes)
+	mux.HandleFunc("/totalMonths.cgi", totalMonths)
+	mux.HandleFunc("/totalMonthsChange.cgi", totalMonthsChange)
+	mux.HandleFunc("/hardware.cgi", gethardware)
 
-	log.Fatal(s.ListenAndServe()) // Servidor HTTP multihilo
+	log.Fatal(http.ListenAndServeTLS(":443", "/etc/letsencrypt/live/todostreaming.es/cert.pem", "/etc/letsencrypt/live/todostreaming.es/privkey.pem", mux)) // Servidor HTTPS/2 multihilo
+}
+
+func redirect(w http.ResponseWriter, req *http.Request) {
+    // remove/add not default ports from req.Host
+    target := "https://" + req.Host + req.URL.Path 
+    if len(req.URL.RawQuery) > 0 {
+        target += "?" + req.URL.RawQuery
+    }
+    log.Printf("redirect to: %s", target)
+    http.Redirect(w, req, target, http.StatusTemporaryRedirect)
 }
 
 func gethardware(w http.ResponseWriter, r *http.Request) {
